@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.env
+.venv/
+venv/
+# data & artifacts (keep repo light)
+data/raw/*
+data/processed/*
+data/external/*
+!data/**/.gitkeep
+*.parquet
+*.pkl
+*.h5
+outputs/
+*.log
+.DS_Store

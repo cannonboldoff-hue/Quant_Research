@@ -1,0 +1,106 @@
+# Strategy registry: strategy_id -> signal function + market/timeframe/params.
+# Source of truth for what belongs here: docs/STRATEGY_INDEX.md, docs/CODE_MAP.md,
+# docs/notebook_mapping.csv. The 73 notebooks collapse into a handful of unique
+# signal patterns -- entries below point at one parameterized function per
+# pattern (see src/qresearch/signals/), not one function per notebook.
+#
+# status: unported entries are documented here for tracking but skipped by
+# StrategyRegistry until their signal_module/signal_func exist.
+
+strategies:
+  # --- JMA fast/slow crossover + ATR stop/target (the corpus's dominant
+  # pattern -- ~25 notebooks, consolidated as signals.generators.jma_signals) ---
+  # ponytail: jma()/lhp_dsl() are plain-Python loops (not numba-jitted), so
+  # they hold the GIL and don't parallelize under joblib's threading backend.
+  # On crypto/forex's multi-million-row 1m series a 6-combo param_grid here
+  # serializes to minutes per market. Scoped to default_params only for this
+  # first full-registry run; upgrade path is numba-jitting jma()/lhp_dsl()'s
+  # inner loops (same pattern as engine_numba.py) before re-enabling the grid.
+  - id: crypto_jma_atr_1m
+    market: crypto
+    timeframe: 1m
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+
+  - id: forex_jma_atr_1m
+    market: forex
+    timeframe: 1m
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+
+  - id: commodities_jma_atr_1h
+    market: commodities
+    timeframe: 1h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: indices_jma_atr_1h
+    market: indices
+    timeframe: 1h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: indian_equities_jma_atr_5m
+    market: indian_equities
+    timeframe: 5m
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  # --- Smart Money Concepts (indian_equities_strat_001, ~8 notebooks).
+  # ponytail: OHLCV has no bid/ask, so smc_signals proxies buy/sell price
+  # with the prior bar's low/high (see docstring). Research-grade P4 needs
+  # a tick-native runner over data/processed/indian_equities/ticks/ instead. ---
+  - id: indian_equities_smc_5m
+    market: indian_equities
+    timeframe: 5m
+    signal_module: smc
+    signal_func: smc_signals
+    default_params: {}
+
+  # --- LHP DSL (forex_1h_strat_004 + multi_1h_strat_022/028/029/030, 5 notebooks) ---
+  - id: forex_lhp_dsl_1m
+    market: forex
+    timeframe: 1m
+    signal_module: dsl_signals
+    signal_func: lhp_dsl_signals
+    default_params: {period: 72, fastend: 0.6, slowend: 0.04}
+
+  # --- LTP-KAMA DSL (multi_1h_strat_031/032, 2 notebooks) ---
+  - id: crypto_kama_dsl_1m
+    market: crypto
+    timeframe: 1m
+    signal_module: dsl_signals
+    signal_func: kama_dsl_signals
+    default_params: {period: 55, fastend: 0.5, slowend: 0.08, window: 14}
+
+  # --- Crypto perp/spot funding-rate arb (crypto_1m_strat_003, the P3 paper).
+  # Deliberately left unported: this is a 3-leg spread strategy (eth-perp /
+  # btc-perp / ethbtc-spot with funding-differential-adjusted thresholds),
+  # not a single-instrument signal -- forcing it through backtest_trades()
+  # (one price series, one position) would silently misrepresent the P3
+  # strategy rather than approximate it. The already-derived dataset lives
+  # at data/processed/crypto/derived/eth_btc_funding_arb.parquet (funding,
+  # Kalman spread, zscore, and position columns precomputed); it needs a
+  # dedicated multi-leg backtest path, not this engine, to score honestly. ---
+  - id: crypto_funding_arb
+    market: crypto
+    timeframe: 1m
+    signal_module: funding_arb
+    signal_func: funding_arb_signals
+    status: unported
+
+  # --- HalfTrend + session-reset (Indian-equities intraday, ~5 notebooks) ---
+  - id: indian_equities_halftrend_5m
+    market: indian_equities
+    timeframe: 5m
+    signal_module: intraday_trend
+    signal_func: halftrend_signals_intraday
+    default_params: {}
