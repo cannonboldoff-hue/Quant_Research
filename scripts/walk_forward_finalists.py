@@ -12,32 +12,29 @@ param_grid and hardcodes sl/tp at 1.5/3.0, so it can't validate the sl/tp
 grid finding from Lever 2. This sweeps both, same grids as the campaign
 runner (STOP_GRID) and registry (fast/slow), via the fast numba engine.
 
+The fold-by-fold selection/OOS-eval logic itself lives in
+``qresearch.optimize.finalist_selection`` (extracted so
+``scripts/build_portfolio.py`` can reuse the exact same walk-forward-selected
+trades to build the portfolio-level Sharpe/CAGR, instead of re-deriving a
+second, possibly-diverging selection).
+
 Run: python scripts/walk_forward_finalists.py
 """
 from __future__ import annotations
 
 import sys
-from itertools import product
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from qresearch.backtest.engine import backtest_trades_fast  # noqa: E402
-from qresearch.campaign.runner import STOP_GRID  # noqa: E402
-from qresearch.optimize.walk_forward import split_data_by_periods  # noqa: E402
-from qresearch.signals.generators import jma_signals  # noqa: E402
+from qresearch.optimize.finalist_selection import run_finalist_trades  # noqa: E402
 from qresearch.utils.logging_config import get_logger  # noqa: E402
 
 log = get_logger("qresearch.walk_forward_finalists")
 PROCESSED = ROOT / "data" / "processed"
-
-SIGNAL_GRID = {"fast": [5, 7, 9], "slow": [21, 28]}
-N_SPLITS = 5
-MIN_TRADES = 10  # in-sample combos with fewer trades than this are too noisy to trust as "best"
 
 FINALISTS = [
     ("commodities_jma_atr_daily", "commodities", "daily"),
@@ -49,55 +46,34 @@ FINALISTS = [
     # combo (+61bps, n=1653) also clears cost with room. Both added here.
     ("crypto_jma_atr_daily", "crypto", "daily"),
     ("crypto_jma_atr_4h", "crypto", "4h"),
+    # v2.1 (2026-07-13): realistic per-pair spread/swap (backtest/costs.py)
+    # flipped these from net-negative-under-flat-fee to net-positive -- gated
+    # here using the SAME realistic cost model for both fold selection and
+    # OOS evaluation (not just post-hoc), so the walk-forward result reflects
+    # what a live account would actually pay, not the flat 7bps placeholder.
+    ("forex_jma_atr_4h", "forex", "4h"),
+    ("forex_jma_atr_daily", "forex", "daily"),
+    # v2.1: indian_equities_jma_atr_daily (+16.3bps blended, dsr=1.0) and
+    # _4h (+8.8bps blended, dsr=1.0, unlike every other market's 4h so far).
+    ("indian_equities_jma_atr_daily", "indian_equities", "daily"),
+    ("indian_equities_jma_atr_4h", "indian_equities", "4h"),
 ]
 
 
-def _combos(grid: dict) -> list[dict]:
-    keys = list(grid)
-    return [dict(zip(keys, vals)) for vals in product(*grid.values())]
-
-
-def _best_insample(df: pd.DataFrame) -> tuple[dict, dict] | None:
-    """Grid-search signal x risk params on one fold; return (signal_params, risk_params) of the
-    best-by-mean-net-return combo with at least MIN_TRADES trades, or None if nothing qualifies."""
-    best, best_ret = None, -np.inf
-    for sparams in _combos(SIGNAL_GRID):
-        sig = jma_signals(df, **sparams)
-        for rparams in _combos(STOP_GRID):
-            trades = backtest_trades_fast(sig, **rparams)
-            if len(trades) < MIN_TRADES:
-                continue
-            ret = trades["ret"].mean()
-            if ret > best_ret:
-                best_ret, best = ret, (sparams, rparams)
-    return best
-
-
-def _oos_eval(df: pd.DataFrame, sparams: dict, rparams: dict) -> dict | None:
-    sig = jma_signals(df, **sparams)
-    trades = backtest_trades_fast(sig, **rparams)
-    if trades.empty:
-        return None
-    r = trades["ret"].to_numpy(dtype=np.float64)
-    return {"n_trades": len(r), "mean_ret": float(r.mean()), "win_rate": float((r > 0).mean())}
-
-
 def run_finalist(strategy_id: str, market: str, timeframe: str) -> pd.DataFrame:
-    src_dir = PROCESSED / market / timeframe
-    rows = []
-    for path in sorted(src_dir.glob("*.parquet")):
-        df = pd.read_parquet(path)
-        splits = split_data_by_periods(df, N_SPLITS)
-        for t in range(len(splits) - 1):
-            best = _best_insample(splits[t])
-            if best is None:
-                continue
-            sparams, rparams = best
-            oos = _oos_eval(splits[t + 1], sparams, rparams)
-            if oos is None:
-                continue
-            rows.append({"ticker": path.stem, "fold": t, **sparams, **rparams, **oos})
-    return pd.DataFrame(rows)
+    """Per ticker-fold OOS summary (n_trades/mean_ret/win_rate), regrouped
+    from the shared per-trade walk-forward output."""
+    trades = run_finalist_trades(strategy_id, market, timeframe, PROCESSED)
+    if trades.empty:
+        return pd.DataFrame()
+    return (
+        trades.groupby(["ticker", "fold"])
+        .agg(fast=("fast", "first"), slow=("slow", "first"),
+             sl_mult=("sl_mult", "first"), tp_mult=("tp_mult", "first"),
+             n_trades=("ret", "size"), mean_ret=("ret", "mean"),
+             win_rate=("ret", lambda r: float((r > 0).mean())))
+        .reset_index()
+    )
 
 
 def main() -> None:

@@ -7,3 +7,6 @@ from .patterns import (
 )
 from .dsl_signals import lhp_dsl_signals, kama_dsl_signals
 from .intraday_trend import halftrend_signals_intraday
+from .regime import trend_regime, apply_regime_filter
+from .cross_sectional import trailing_return_rank, long_short_weights, cross_sectional_returns
+from .volume_filter import apply_volume_filter

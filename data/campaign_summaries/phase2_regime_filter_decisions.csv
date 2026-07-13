@@ -1,0 +1,6 @@
+strategy_id,baseline_n_trades,baseline_mean_ret,filtered_n_trades,filtered_mean_ret,kept
+commodities_jma_atr_daily,444,0.012650591778546777,405,0.011528081552499986,baseline
+indices_jma_atr_daily,416,0.008347331823045721,326,0.01148788179882279,regime_filtered
+crypto_jma_atr_daily,295,0.018125190890158512,200,0.011976107440963467,baseline
+indian_equities_jma_atr_daily,3065,0.005535254796956966,2739,0.004601345014931032,baseline
+forex_jma_atr_daily,418,0.0023028587042863684,365,0.0021648931961940616,baseline

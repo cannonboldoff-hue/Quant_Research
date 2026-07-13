@@ -173,6 +173,26 @@ strategies:
     signal_func: lhp_dsl_signals
     default_params: {period: 72, fastend: 0.6, slowend: 0.04}
 
+  # v2.1 (2026-07-13): forex_lhp_dsl_1m came back net-negative (dsr 0.0) --
+  # same "is it the timeframe or the signal" question jma_atr answered via
+  # 4h/daily. slowend held at its default (docstring's 0.03-0.04 range is
+  # narrow); period/fastend swept per lhp_dsl's documented alt values.
+  - id: forex_lhp_dsl_4h
+    market: forex
+    timeframe: 4h
+    signal_module: dsl_signals
+    signal_func: lhp_dsl_signals
+    default_params: {period: 72, fastend: 0.6, slowend: 0.04}
+    param_grid: {period: [54, 72], fastend: [0.3, 0.6]}
+
+  - id: forex_lhp_dsl_daily
+    market: forex
+    timeframe: daily
+    signal_module: dsl_signals
+    signal_func: lhp_dsl_signals
+    default_params: {period: 72, fastend: 0.6, slowend: 0.04}
+    param_grid: {period: [54, 72], fastend: [0.3, 0.6]}
+
   # --- LTP-KAMA DSL (multi_1h_strat_031/032, 2 notebooks) ---
   - id: crypto_kama_dsl_1m
     market: crypto
@@ -180,6 +200,24 @@ strategies:
     signal_module: dsl_signals
     signal_func: kama_dsl_signals
     default_params: {period: 55, fastend: 0.5, slowend: 0.08, window: 14}
+
+  # v2.1 (2026-07-13): crypto_kama_dsl_1m came back net-negative (dsr 0.0) --
+  # same 4h/daily retest as lhp_dsl above. slowend/window held at default.
+  - id: crypto_kama_dsl_4h
+    market: crypto
+    timeframe: 4h
+    signal_module: dsl_signals
+    signal_func: kama_dsl_signals
+    default_params: {period: 55, fastend: 0.5, slowend: 0.08, window: 14}
+    param_grid: {period: [40, 55, 72], fastend: [0.3, 0.5]}
+
+  - id: crypto_kama_dsl_daily
+    market: crypto
+    timeframe: daily
+    signal_module: dsl_signals
+    signal_func: kama_dsl_signals
+    default_params: {period: 55, fastend: 0.5, slowend: 0.08, window: 14}
+    param_grid: {period: [40, 55, 72], fastend: [0.3, 0.5]}
 
   # --- Crypto perp/spot funding-rate arb (crypto_1m_strat_003, the P3 paper).
   # Deliberately left unported: this is a 3-leg spread strategy (eth-perp /

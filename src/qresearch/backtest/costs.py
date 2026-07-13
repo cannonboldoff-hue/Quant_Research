@@ -42,6 +42,30 @@ FOREX_SPECS: dict[str, ForexSpec] = {
     "AUDUSD": ForexSpec(0.0001, 0.8, -3.0, 0.5),
     "NZDUSD": ForexSpec(0.0001, 1.4, -3.0, 0.5),
     "EURGBP": ForexSpec(0.0001, 0.9, -2.0, -1.0),
+    # Cross pairs (all remaining C(8,2) combos of EUR/GBP/USD/JPY/CHF/CAD/AUD/NZD)
+    # -- wider spreads than the majors above (thinner liquidity), swap signs
+    # follow the same funding-currency logic but are rougher estimates than
+    # the 8 majors above: not sourced per-pair, just directionally plausible.
+    "EURJPY": ForexSpec(0.01, 1.5, -5.0, 1.0),
+    "EURCHF": ForexSpec(0.0001, 1.8, 1.0, -4.0),
+    "EURCAD": ForexSpec(0.0001, 2.5, -3.0, 0.0),
+    "EURAUD": ForexSpec(0.0001, 2.5, 2.0, -5.0),
+    "EURNZD": ForexSpec(0.0001, 3.0, 2.0, -5.0),
+    "GBPJPY": ForexSpec(0.01, 2.0, -4.0, 0.0),
+    "GBPCHF": ForexSpec(0.0001, 2.5, 1.0, -4.0),
+    "GBPCAD": ForexSpec(0.0001, 3.0, -2.0, -1.0),
+    "GBPAUD": ForexSpec(0.0001, 3.0, 1.0, -4.0),
+    "GBPNZD": ForexSpec(0.0001, 4.0, 1.0, -4.0),
+    "AUDJPY": ForexSpec(0.01, 1.8, 1.0, -5.0),
+    "AUDCHF": ForexSpec(0.0001, 2.5, 1.0, -4.0),
+    "AUDCAD": ForexSpec(0.0001, 2.5, 0.0, -3.0),
+    "AUDNZD": ForexSpec(0.0001, 3.0, -2.0, -1.0),
+    "NZDJPY": ForexSpec(0.01, 2.5, 1.0, -5.0),
+    "NZDCHF": ForexSpec(0.0001, 3.0, 1.0, -4.0),
+    "NZDCAD": ForexSpec(0.0001, 3.0, -1.0, -2.0),
+    "CADJPY": ForexSpec(0.01, 2.0, 0.0, -4.0),
+    "CADCHF": ForexSpec(0.0001, 2.5, 0.0, -3.0),
+    "CHFJPY": ForexSpec(0.01, 2.5, -3.0, -1.0),
 }
 
 

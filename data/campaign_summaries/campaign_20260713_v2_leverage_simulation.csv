@@ -1,0 +1,5 @@
+sizing_mode,leverage,position_fraction,typical_stop_pct,structural_ruin,final_equity,max_drawdown,ruined,n_trades,ruin_probability_mc
+disciplined,100,0.6693553854550571,0.014939746832994497,False,273217.71787482145,-0.2180731049738757,False,307,0.0
+aggressive,100,50.0,0.014939746832994497,False,0.0,-1.0,True,307,0.637
+disciplined,500,0.6693553854550571,0.014939746832994497,False,273217.71787482145,-0.2180731049738757,False,307,0.0
+aggressive,500,250.0,0.014939746832994497,True,0.0,-1.0,True,307,0.801

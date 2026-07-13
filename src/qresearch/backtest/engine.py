@@ -12,7 +12,7 @@ import pandas as pd
 from ..config.settings import get_settings
 from ..risk.stops import atr_stop_levels, apply_stop_take
 from ..indicators.volatility import atr
-from .engine_numba import _scan_trades, STOP, TARGET
+from .engine_numba import _scan_trades, _scan_trades_trailing, STOP, TARGET
 
 
 @dataclass
@@ -81,6 +81,45 @@ def backtest_trades_fast(df: pd.DataFrame, sl_mult: float = 1.5, tp_mult: float 
 
     entry_idx, exit_idx, entry_px, exit_px, direction, reason = _scan_trades(
         price, signal, atr_arr, sl_mult, tp_mult
+    )
+    if len(entry_idx) == 0:
+        return pd.DataFrame([], columns=["entry_time", "exit_time", "direction",
+                                          "entry_price", "exit_price", "reason", "pnl", "ret"])
+
+    gross = direction * (exit_px - entry_px) / entry_px
+    ret = gross - fee
+    reason_str = np.where(reason == STOP, "stop", np.where(reason == TARGET, "target", "eod"))
+
+    dates = df["Date"].to_numpy() if "Date" in df.columns else None
+    return pd.DataFrame({
+        "entry_time": dates[entry_idx] if dates is not None else entry_idx,
+        "exit_time": dates[exit_idx] if dates is not None else exit_idx,
+        "direction": direction,
+        "entry_price": entry_px,
+        "exit_price": exit_px,
+        "reason": reason_str,
+        "pnl": ret * entry_px,
+        "ret": ret,
+    })
+
+
+def backtest_trades_trailing_fast(df: pd.DataFrame, sl_mult: float = 1.5, trail_mult: float = 2.0,
+                                   fee_bps: float | None = None, price_col: str = "close",
+                                   atr_length: int = 14) -> pd.DataFrame:
+    """Same contract as ``backtest_trades_fast``, but exits via a ratcheting
+    ATR trailing stop (``risk.stops.trailing_stop``'s logic, numba-jitted)
+    instead of a fixed take-profit -- locks in gains before a winner
+    round-trips into a loss, rather than only capping the downside."""
+    s = get_settings()
+    fee = (s.fee_bps + s.slippage_bps if fee_bps is None else fee_bps) / 1e4
+    df = df.reset_index(drop=True)
+
+    price = df[price_col].to_numpy(dtype=np.float64)
+    signal = df["signal"].to_numpy(dtype=np.int64)
+    atr_arr = atr(df, atr_length).to_numpy(dtype=np.float64)
+
+    entry_idx, exit_idx, entry_px, exit_px, direction, reason = _scan_trades_trailing(
+        price, signal, atr_arr, sl_mult, trail_mult
     )
     if len(entry_idx) == 0:
         return pd.DataFrame([], columns=["entry_time", "exit_time", "direction",

@@ -1,0 +1,2 @@
+target_sleeve,baseline_n_trades,baseline_mean_ret,filtered_n_trades,filtered_mean_ret,kept,combined_eval_sharpe,phase4_gate
+crypto_jma_atr_daily,295,0.018125190890158512,141,0.006952121049069101,baseline,,False

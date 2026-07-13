@@ -70,6 +70,10 @@ def load_yfinance(ticker: str, start=None, end=None, interval: str = "1d") -> pd
     """Fetch equities via yfinance into the canonical long schema."""
     import yfinance as yf  # local import: optional dependency
     raw = yf.download(ticker, start=start, end=end, interval=interval, progress=False)
+    if isinstance(raw.columns, pd.MultiIndex):
+        # newer yfinance returns ("Close", "<ticker>") column tuples for a
+        # single-ticker download -- drop the per-ticker level, keep the field name.
+        raw.columns = raw.columns.get_level_values(0)
     raw = raw.rename(columns=str.lower).reset_index()
     raw = raw.rename(columns={"index": COL_DATE, "date": COL_DATE, "datetime": COL_DATE})
     raw[COL_TICKER] = ticker

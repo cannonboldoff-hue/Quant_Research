@@ -78,3 +78,69 @@ def _scan_trades(price: np.ndarray, signal: np.ndarray, atr_arr: np.ndarray,
 
     return (entry_idx[:count], exit_idx[:count], entry_px[:count],
             exit_px[:count], direction[:count], reason[:count])
+
+
+@numba.njit(cache=True)
+def _scan_trades_trailing(price: np.ndarray, signal: np.ndarray, atr_arr: np.ndarray,
+                           sl_mult: float, trail_mult: float):
+    """Same entry/warmup semantics as ``_scan_trades``, but no fixed take-profit
+    -- the stop only ever ratchets in the trade's favor (``trail_mult * ATR``
+    behind the best price seen), locking in gains before a winner round-trips
+    back into a loss. Exit reasons collapse to STOP/EOD (TARGET never fires)."""
+    n = price.shape[0]
+    entry_idx = np.empty(n, dtype=np.int64)
+    exit_idx = np.empty(n, dtype=np.int64)
+    entry_px = np.empty(n, dtype=np.float64)
+    exit_px = np.empty(n, dtype=np.float64)
+    direction = np.empty(n, dtype=np.int64)
+    reason = np.empty(n, dtype=np.int64)
+    count = 0
+    i = 0
+    while i < n - 1:
+        sig = signal[i]
+        if sig == 0:
+            i += 1
+            continue
+        a = atr_arr[i]
+        if np.isnan(a):
+            i += 1
+            continue
+        entry = price[i]
+        stop = entry - sig * sl_mult * a
+
+        ex_i = n - 1
+        ex_px = price[n - 1]
+        r = EOD
+        j = i + 1
+        while j < n:
+            p = price[j]
+            aj = atr_arr[j]
+            if np.isnan(aj):
+                aj = a
+            if sig == 1:
+                candidate = p - trail_mult * aj
+                if candidate > stop:
+                    stop = candidate
+                if p <= stop:
+                    ex_i, ex_px, r = j, stop, STOP
+                    break
+            else:
+                candidate = p + trail_mult * aj
+                if candidate < stop:
+                    stop = candidate
+                if p >= stop:
+                    ex_i, ex_px, r = j, stop, STOP
+                    break
+            j += 1
+
+        entry_idx[count] = i
+        exit_idx[count] = ex_i
+        entry_px[count] = entry
+        exit_px[count] = ex_px
+        direction[count] = sig
+        reason[count] = r
+        count += 1
+        i = ex_i + 1
+
+    return (entry_idx[:count], exit_idx[:count], entry_px[:count],
+            exit_px[:count], direction[:count], reason[:count])

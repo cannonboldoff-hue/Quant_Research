@@ -1,0 +1,2 @@
+chosen_lookback,chosen_hold,eval_sharpe,eval_dsr,pbo,corr_vs_trend_book,standalone_gate,combined_with_cs_eval_sharpe,phase3_gate
+10,3,-1.4087013020286991,0.0003289582539506226,0.14682539682539683,,False,,False
