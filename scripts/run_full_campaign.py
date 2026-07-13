@@ -22,7 +22,7 @@ from qresearch.stats import deflated_sharpe, pbo
 from qresearch.utils.logging_config import get_logger
 
 log = get_logger("qresearch.full_campaign")
-CAMPAIGN_ID = "campaign_20260713_v1"
+CAMPAIGN_ID = "campaign_20260713_v2"
 
 
 def main() -> None:

@@ -23,12 +23,55 @@ strategies:
     signal_func: jma_signals
     default_params: {fast: 7, slow: 21}
 
+  # --- Lever 1 (v2 alpha search, 2026-07-13): same jma_signals, 4h/daily via
+  # scripts/resample_timeframes.py. The GIL-bottleneck reasoning that scoped
+  # crypto_jma_atr_1m to default_params only doesn't apply here -- daily/4h
+  # bar counts are ~1000x smaller than 1m, so a grid is cheap; enabled. ---
+  - id: crypto_jma_atr_4h
+    market: crypto
+    timeframe: 4h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: crypto_jma_atr_daily
+    market: crypto
+    timeframe: daily
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  # ponytail: diagnosed 2026-07-13 -- the 8% win rate wasn't an engine bug,
+  # it was the flat cross-asset 7bps fee_bps+slippage_bps overcharging forex
+  # ~10x vs its real cost (EURUSD spread ~0.6 pips =~0.5bps). Re-enabled
+  # 2026-07-13: campaign trades feed scripts/apply_realistic_forex_costs.py,
+  # which recomputes net return from backtest/costs.py's per-pair spread/swap
+  # instead of the flat fee -- run that after this campaign, don't trust this
+  # strategy's raw campaign-summary mean_ret/win_rate directly.
   - id: forex_jma_atr_1m
     market: forex
     timeframe: 1m
     signal_module: generators
     signal_func: jma_signals
     default_params: {fast: 7, slow: 21}
+
+  - id: forex_jma_atr_4h
+    market: forex
+    timeframe: 4h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: forex_jma_atr_daily
+    market: forex
+    timeframe: daily
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
 
   - id: commodities_jma_atr_1h
     market: commodities
@@ -46,9 +89,64 @@ strategies:
     default_params: {fast: 7, slow: 21}
     param_grid: {fast: [5, 7, 9], slow: [21, 28]}
 
+  # --- Lever 1 (v2 alpha search, 2026-07-13): 1h JMA clears cost gross but not
+  # net; testing whether more room per trade (4h/daily, via
+  # scripts/resample_timeframes.py) clears it by a wider margin. Mirrors the
+  # 1h entries above 1:1, same signal/grid. ---
+  - id: commodities_jma_atr_4h
+    market: commodities
+    timeframe: 4h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: commodities_jma_atr_daily
+    market: commodities
+    timeframe: daily
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: indices_jma_atr_4h
+    market: indices
+    timeframe: 4h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: indices_jma_atr_daily
+    market: indices
+    timeframe: daily
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
   - id: indian_equities_jma_atr_5m
     market: indian_equities
     timeframe: 5m
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  # --- Lever 1 (v2.1 alpha search, 2026-07-13): same jma_signals, 4h/daily via
+  # scripts/resample_timeframes.py (resampled from 5m, the full-48-ticker
+  # source). Mirrors the 5m entry above 1:1, same grid. ---
+  - id: indian_equities_jma_atr_4h
+    market: indian_equities
+    timeframe: 4h
+    signal_module: generators
+    signal_func: jma_signals
+    default_params: {fast: 7, slow: 21}
+    param_grid: {fast: [5, 7, 9], slow: [21, 28]}
+
+  - id: indian_equities_jma_atr_daily
+    market: indian_equities
+    timeframe: daily
     signal_module: generators
     signal_func: jma_signals
     default_params: {fast: 7, slow: 21}
@@ -66,6 +164,8 @@ strategies:
     default_params: {}
 
   # --- LHP DSL (forex_1h_strat_004 + multi_1h_strat_022/028/029/030, 5 notebooks) ---
+  # ponytail: same flat-fee-overcharge diagnosis as forex_jma_atr_1m above --
+  # re-enabled for the same reason, not re-explained per entry.
   - id: forex_lhp_dsl_1m
     market: forex
     timeframe: 1m

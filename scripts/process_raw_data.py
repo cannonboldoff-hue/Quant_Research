@@ -66,9 +66,14 @@ def normalize_parquet(path: Path, rename: dict | None = None,
 def _validate(df: pd.DataFrame, name: str) -> pd.DataFrame:
     before = len(df)
     df = df.dropna(subset=[COL_DATE, "close"])
+    # positive_ok catches all-zero (or negative) OHLC rows -- these trivially
+    # pass the high>=max/low<=min checks below (0 >= 0), so a bad tick/print
+    # with price==0 would otherwise slip through and later produce inf/nan
+    # returns (division by entry_price==0) downstream in the backtest engine.
+    positive_ok = (df[["open", "high", "low", "close"]] > 0).all(axis=1)
     hi_ok = df["high"] >= df[["open", "close", "low"]].max(axis=1) - 1e-9
     lo_ok = df["low"] <= df[["open", "close", "high"]].min(axis=1) + 1e-9
-    df = df[hi_ok & lo_ok & (df["volume"] >= 0)]
+    df = df[positive_ok & hi_ok & lo_ok & (df["volume"] >= 0)]
     dropped = before - len(df)
     if dropped:
         log.warning("%s: dropped %d/%d rows failing OHLCV sanity checks", name, dropped, before)

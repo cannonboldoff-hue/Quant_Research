@@ -27,6 +27,12 @@ from ..utils.logging_config import get_logger
 
 _log = get_logger("qresearch.campaign.runner")
 
+# The 1.5/3.0 default (1:2 reward:risk) was never swept -- it alone pins the
+# win rate to ~33% (the barrier-touch ratio) regardless of signal quality.
+# Sweeping it here, not per-strategy in strategies.yaml, since it's a risk
+# parameter every strategy shares, not a signal parameter.
+STOP_GRID: dict[str, list[float]] = {"sl_mult": [1.0, 1.5, 2.0], "tp_mult": [1.5, 2.0, 3.0, 4.0]}
+
 
 def _list_tickers(processed_dir: Path, market: str, timeframe: str) -> list[str]:
     d = processed_dir / market / timeframe
@@ -48,16 +54,26 @@ def _run_ticker_task(market: str, timeframe: str, ticker: str, processed_dir: Pa
     except Exception as e:
         return {"ticker": ticker, "market": market, "timeframe": timeframe, "n_runs": 0, "errors": [str(e)]}
 
+    risk_combos = _param_combos(STOP_GRID, {"sl_mult": 1.5, "tp_mult": 3.0})
     n_runs, errors = 0, []
     for strategy_id, entry in entries.items():
         for params in _param_combos(entry["param_grid"], entry["default_params"]):
             try:
                 sig_df = entry["signal_fn"](df, **params)
-                trades = backtest_trades_fast(sig_df)
-                store.write(campaign_id, strategy_id, market, timeframe, ticker, params, trades)
-                n_runs += 1
             except Exception as e:
                 errors.append(f"{strategy_id}/{params}: {e}")
+                continue
+            # sig_df is reused across the risk grid -- only the (cheap, numba)
+            # backtest reruns per sl/tp combo, not the (expensive, plain-Python
+            # for jma/lhp_dsl) signal generation.
+            for risk_params in risk_combos:
+                full_params = {**params, **risk_params}
+                try:
+                    trades = backtest_trades_fast(sig_df, **risk_params)
+                    store.write(campaign_id, strategy_id, market, timeframe, ticker, full_params, trades)
+                    n_runs += 1
+                except Exception as e:
+                    errors.append(f"{strategy_id}/{full_params}: {e}")
     return {"ticker": ticker, "market": market, "timeframe": timeframe, "n_runs": n_runs, "errors": errors}
 
 

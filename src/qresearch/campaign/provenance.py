@@ -7,6 +7,7 @@ pushdown via ``pyarrow.dataset`` (no full-dataset scan needed to answer
 """
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -37,7 +38,12 @@ class ProvenanceStore:
 
         part_dir = self.base_dir / f"campaign_id={campaign_id}" / f"strategy_id={strategy_id}"
         part_dir.mkdir(parents=True, exist_ok=True)
-        fname = f"{ticker}_{abs(hash((ticker, str(params))))}.parquet"
+        # Python's built-in hash() is salted per-process (PYTHONHASHSEED), so
+        # it is NOT stable across separate script runs -- using it here meant
+        # every rerun wrote new files alongside old ones instead of
+        # overwriting, silently duplicating trades. hashlib is stable.
+        key = hashlib.sha1(f"{ticker}|{params}".encode()).hexdigest()[:16]
+        fname = f"{ticker}_{key}.parquet"
         out.to_parquet(part_dir / fname, index=False)
         _log.debug("wrote %d trades -> %s", len(out), part_dir / fname)
 
