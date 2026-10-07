@@ -53,5 +53,7 @@ def curvature(
     v_norm = np.linalg.norm(v_pca, axis=1)
     cross_norm = np.linalg.norm(np.cross(v_pca, a_pca), axis=1)
     mask = v_norm > 1e-8
-    curv.values[mask] = cross_norm[mask] / (v_norm[mask] ** 3 + 1e-8)
+    vals = curv.to_numpy(dtype=float, copy=True)
+    vals[mask] = cross_norm[mask] / (v_norm[mask] ** 3 + 1e-8)
+    curv = pd.Series(vals, index=curv.index)
     return curv

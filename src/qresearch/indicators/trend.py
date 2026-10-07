@@ -26,8 +26,8 @@ def supertrend(df: pd.DataFrame, period: int = 10, multiplier: float = 3.0) -> p
     upper = mid + multiplier * a
     lower = mid - multiplier * a
 
-    close = df["close"].to_numpy()
-    upper_v, lower_v = upper.to_numpy(), lower.to_numpy()
+    close = df["close"].to_numpy(copy=True)
+    upper_v, lower_v = upper.to_numpy(copy=True), lower.to_numpy(copy=True)
     n = len(df)
     st = np.full(n, np.nan)
     trend = np.zeros(n, dtype=np.int8)  # 1 = uptrend, -1 = downtrend

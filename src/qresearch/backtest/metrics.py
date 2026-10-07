@@ -64,13 +64,22 @@ def calculate_metrics(trades: pd.DataFrame) -> dict:
                 "sortino": 0, "max_drawdown": 0, "profit_factor": 0, "avg_ret": 0}
     r = trades["ret"]
     equity = (1 + r).cumprod()
+    # Per-trade returns must be annualised by trades per year, not bars per year: the
+    # original sqrt(252) scaling treated every trade as a one-day return and inflated the
+    # Sharpe of multi-day trades by sqrt(avg holding period).
+    periods = None
+    if {"entry_time", "exit_time"}.issubset(trades.columns) and len(r) > 1:
+        t0, t1 = pd.to_datetime(trades["entry_time"]).min(), pd.to_datetime(trades["exit_time"]).max()
+        years = (t1 - t0).days / 365.25 if pd.notna(t0) and pd.notna(t1) else 0
+        if years > 0:
+            periods = max(len(r) / years, 1e-9)
     return {
         "n_trades": int(len(r)),
         "win_rate": win_rate(r),
         "total_return": float(equity.iloc[-1] - 1),
         "avg_ret": float(r.mean()),
-        "sharpe": sharpe(r),
-        "sortino": sortino(r),
+        "sharpe": sharpe(r, periods),
+        "sortino": sortino(r, periods),
         "max_drawdown": max_drawdown(equity),
         "profit_factor": profit_factor(r),
     }

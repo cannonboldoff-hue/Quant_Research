@@ -45,6 +45,7 @@ def jma(price: pd.Series, length: int = 7, phase: float = 0.0, power: float = 2.
     numba-jitted: the recursion is inherently sequential (bar i depends on
     bar i-1), so this is a JIT speedup, not a vectorization.
     """
+    index = price.index
     price = price.astype(float).to_numpy()
     n = len(price)
     if n == 0:
@@ -55,4 +56,4 @@ def jma(price: pd.Series, length: int = 7, phase: float = 0.0, power: float = 2.
     alpha = beta ** power
 
     out = _jma_core(price, phase_ratio, beta, alpha)
-    return pd.Series(out)
+    return pd.Series(out, index=index)  # keep the caller's index (was a RangeIndex)

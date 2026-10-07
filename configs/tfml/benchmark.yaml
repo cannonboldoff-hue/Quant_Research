@@ -1,0 +1,27 @@
+# Benchmark configuration used for every headline number in the paper.
+# Daily bars, benchmark universe (all groups with benchmark: true in universe.yaml:
+# equity indices, futures, FX majors/crosses/EM, crypto, ETFs), annual walk-forward
+# with expanding training window, 2-year validation block, next-open execution,
+# 1x cost assumptions, 10% vol-target sizing per instrument.
+run_id: benchmark
+frequency: daily
+validation: wf_expanding
+first_test_year: 2006
+last_test_year: 2026
+val_years: 2
+retrain_every_years: 1
+execution: next_open
+cost_mult: 1.0
+target_vol: 0.10
+h_bar: 10
+h_regime: 20
+h_variant: 21
+train_stride: 0          # 0 = subsample training rows at the label horizon (non-overlapping labels)
+max_train_rows: 150000
+embargo_bars: 5
+pred_smooth_span: 5      # causal EMA of bar-level ML outputs (fixed a priori)
+seed: 0
+subperiods: [[2006, 2010], [2011, 2015], [2016, 2020], [2021, 2026]]
+panel:
+  benchmark_only: true
+  start: "1990-01-01"

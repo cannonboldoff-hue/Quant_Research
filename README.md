@@ -1,5 +1,24 @@
 # Quant Research Repository
 
+> **Main study: does machine learning improve trend following?** `paper/paper.md`
+> (also `paper/paper.html`) compares 39 established trend-following strategies against
+> ML-enhanced versions. ML enters at five pipeline stages, with five models per stage,
+> under purged walk-forward validation, on a public multi-asset dataset. The code is the
+> `qresearch.tfml` subpackage; see [`docs/TFML_FRAMEWORK.md`](docs/TFML_FRAMEWORK.md)
+> (architecture, bias controls, registry schema) and [`docs/TFML_DATA.md`](docs/TFML_DATA.md)
+> (sources, cleaning, limitations). To reproduce everything:
+>
+> ```bash
+> pip install -e . && pip install -r requirements.txt
+> python scripts/tfml_fetch_data.py          # download + clean (Yahoo, Binance, FRED)
+> bash scripts/tfml_run_all.sh 6             # all experiment runs -> results/tfml/registry.sqlite
+> python scripts/tfml_report.py              # tables / figures / results_summary.json
+> python paper/build_paper.py                # paper.md + paper.html (numbers injected from results)
+> pytest -q                                  # incl. look-ahead tests for every feature & strategy
+> ```
+>
+> Results walkthrough notebook: `notebooks/22_ml_trend_following/tfml_results.ipynb`.
+
 An institutional-grade quantitative trading research repository, rebuilt from 238 exploratory
 Jupyter notebooks accumulated over 3+ years. The raw notebooks were classified, de-duplicated,
 output-stripped, renamed, documented, and reorganized into logical sections, with all repeated

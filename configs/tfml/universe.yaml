@@ -1,0 +1,342 @@
+# Instrument universe for the ML-vs-rule-based trend-following study (qresearch.tfml).
+#
+# Every instrument carries: market (the paper's "market" dimension), asset_class,
+# exchange/region (venue dimension), source (where the bars come from), and a
+# per-side transaction-cost assumption in bps of traded notional (cost_bps) plus
+# slippage_bps. Costs are charged on |position change| at execution.
+#
+# survivorship flag: "none" = index/ETF/FX/futures series that do not depend on
+# a constituent list chosen today; "current_constituents" = single stocks picked
+# from TODAY's index membership (survivorship-biased by construction) -- these are
+# excluded from the benchmark universe and only used in a labelled robustness run.
+#
+# Cost assumptions (per side, bps): representative of liquid institutional
+# execution, deliberately conservative for retail-sized trades in futures/FX and
+# taker fees for crypto. They are assumptions, not broker quotes; the paper reports
+# a 0x/1x/3x cost sensitivity.
+
+defaults:
+  daily_source: yahoo
+
+groups:
+  equity_index:
+    asset_class: equity
+    cost_bps: 1.0
+    slippage_bps: 1.0
+    survivorship: none
+    note: "Yahoo price indices (no dividends); proxy for index-futures exposure."
+    instruments:
+      ^GSPC: {exchange: NYSE/NASDAQ, region: north_america, name: "S&P 500"}
+      ^DJI: {exchange: NYSE/NASDAQ, region: north_america, name: "Dow Jones Industrial Average"}
+      ^IXIC: {exchange: NASDAQ, region: north_america, name: "NASDAQ Composite"}
+      ^RUT: {exchange: NYSE/NASDAQ, region: north_america, name: "Russell 2000"}
+      ^NYA: {exchange: NYSE, region: north_america, name: "NYSE Composite"}
+      ^GSPTSE: {exchange: TSX, region: north_america, name: "S&P/TSX Composite"}
+      ^MXX: {exchange: BMV, region: latin_america, name: "IPC Mexico"}
+      ^BVSP: {exchange: B3, region: latin_america, name: "Ibovespa"}
+      ^MERV: {exchange: BYMA, region: latin_america, name: "MERVAL"}
+      ^FTSE: {exchange: LSE, region: europe, name: "FTSE 100"}
+      ^GDAXI: {exchange: XETRA, region: europe, name: "DAX"}
+      ^FCHI: {exchange: Euronext Paris, region: europe, name: "CAC 40"}
+      ^STOXX50E: {exchange: Eurex, region: europe, name: "EURO STOXX 50"}
+      ^AEX: {exchange: Euronext Amsterdam, region: europe, name: "AEX"}
+      ^IBEX: {exchange: BME, region: europe, name: "IBEX 35"}
+      ^SSMI: {exchange: SIX, region: europe, name: "SMI"}
+      FTSEMIB.MI: {exchange: Borsa Italiana, region: europe, name: "FTSE MIB"}
+      ^OMX: {exchange: Nasdaq Stockholm, region: europe, name: "OMX Stockholm 30"}
+      ^BFX: {exchange: Euronext Brussels, region: europe, name: "BEL 20"}
+      ^ATX: {exchange: Wiener Boerse, region: europe, name: "ATX"}
+      ^N225: {exchange: TSE, region: asia_pacific, name: "Nikkei 225"}
+      ^HSI: {exchange: HKEX, region: asia_pacific, name: "Hang Seng"}
+      000001.SS: {exchange: SSE, region: asia_pacific, name: "SSE Composite"}
+      399001.SZ: {exchange: SZSE, region: asia_pacific, name: "SZSE Component"}
+      ^KS11: {exchange: KRX, region: asia_pacific, name: "KOSPI"}
+      ^TWII: {exchange: TWSE, region: asia_pacific, name: "TAIEX"}
+      ^STI: {exchange: SGX, region: asia_pacific, name: "Straits Times"}
+      ^AXJO: {exchange: ASX, region: asia_pacific, name: "S&P/ASX 200"}
+      ^NZ50: {exchange: NZX, region: asia_pacific, name: "NZX 50"}
+      ^BSESN: {exchange: BSE, region: asia_pacific, name: "BSE Sensex"}
+      ^NSEI: {exchange: NSE, region: asia_pacific, name: "NIFTY 50"}
+      ^JKSE: {exchange: IDX, region: asia_pacific, name: "Jakarta Composite"}
+      ^KLSE: {exchange: Bursa Malaysia, region: asia_pacific, name: "FTSE Bursa Malaysia KLCI"}
+      ^TA125.TA: {exchange: TASE, region: middle_east, name: "TA-125"}
+
+  futures:
+    asset_class: futures
+    cost_bps: 2.0
+    slippage_bps: 1.0
+    survivorship: none
+    note: "Yahoo continuous front-month futures, UNADJUSTED for rolls (roll gaps remain in the series)."
+    instruments:
+      ES=F: {exchange: CME, region: north_america, sector: equity, name: "E-mini S&P 500"}
+      NQ=F: {exchange: CME, region: north_america, sector: equity, name: "E-mini Nasdaq-100"}
+      YM=F: {exchange: CBOT, region: north_america, sector: equity, name: "E-mini Dow"}
+      RTY=F: {exchange: CME, region: north_america, sector: equity, name: "E-mini Russell 2000"}
+      ZB=F: {exchange: CBOT, region: north_america, sector: rates, name: "US Treasury Bond"}
+      ZN=F: {exchange: CBOT, region: north_america, sector: rates, name: "10-Year T-Note"}
+      ZF=F: {exchange: CBOT, region: north_america, sector: rates, name: "5-Year T-Note"}
+      ZT=F: {exchange: CBOT, region: north_america, sector: rates, name: "2-Year T-Note"}
+      CL=F: {exchange: NYMEX, region: north_america, sector: energy, name: "WTI Crude Oil"}
+      BZ=F: {exchange: NYMEX, region: north_america, sector: energy, name: "Brent Crude Oil"}
+      NG=F: {exchange: NYMEX, region: north_america, sector: energy, name: "Natural Gas"}
+      HO=F: {exchange: NYMEX, region: north_america, sector: energy, name: "Heating Oil"}
+      RB=F: {exchange: NYMEX, region: north_america, sector: energy, name: "RBOB Gasoline"}
+      GC=F: {exchange: COMEX, region: north_america, sector: metals, name: "Gold"}
+      SI=F: {exchange: COMEX, region: north_america, sector: metals, name: "Silver"}
+      HG=F: {exchange: COMEX, region: north_america, sector: metals, name: "Copper"}
+      PL=F: {exchange: NYMEX, region: north_america, sector: metals, name: "Platinum"}
+      PA=F: {exchange: NYMEX, region: north_america, sector: metals, name: "Palladium"}
+      ZC=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "Corn"}
+      ZW=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "Chicago Wheat"}
+      KE=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "KC HRW Wheat"}
+      ZS=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "Soybeans"}
+      ZM=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "Soybean Meal"}
+      ZL=F: {exchange: CBOT, region: north_america, sector: agriculture, name: "Soybean Oil"}
+      KC=F: {exchange: ICE US, region: north_america, sector: softs, name: "Coffee"}
+      SB=F: {exchange: ICE US, region: north_america, sector: softs, name: "Sugar No. 11"}
+      CC=F: {exchange: ICE US, region: north_america, sector: softs, name: "Cocoa"}
+      CT=F: {exchange: ICE US, region: north_america, sector: softs, name: "Cotton"}
+      OJ=F: {exchange: ICE US, region: north_america, sector: softs, name: "Orange Juice"}
+      LE=F: {exchange: CME, region: north_america, sector: livestock, name: "Live Cattle"}
+      HE=F: {exchange: CME, region: north_america, sector: livestock, name: "Lean Hogs"}
+      GF=F: {exchange: CME, region: north_america, sector: livestock, name: "Feeder Cattle"}
+      6E=F: {exchange: CME, region: north_america, sector: currency, name: "Euro FX"}
+      6J=F: {exchange: CME, region: north_america, sector: currency, name: "Japanese Yen"}
+      6B=F: {exchange: CME, region: north_america, sector: currency, name: "British Pound"}
+      6A=F: {exchange: CME, region: north_america, sector: currency, name: "Australian Dollar"}
+      6C=F: {exchange: CME, region: north_america, sector: currency, name: "Canadian Dollar"}
+      6S=F: {exchange: CME, region: north_america, sector: currency, name: "Swiss Franc"}
+      DX=F: {exchange: ICE US, region: north_america, sector: currency, name: "US Dollar Index"}
+
+  fx_major:
+    asset_class: fx
+    cost_bps: 0.5
+    slippage_bps: 0.5
+    survivorship: none
+    note: "Yahoo spot FX; no carry/swap in returns."
+    instruments:
+      EURUSD=X: {exchange: OTC, region: global}
+      GBPUSD=X: {exchange: OTC, region: global}
+      USDJPY=X: {exchange: OTC, region: global}
+      USDCHF=X: {exchange: OTC, region: global}
+      USDCAD=X: {exchange: OTC, region: global}
+      AUDUSD=X: {exchange: OTC, region: global}
+      NZDUSD=X: {exchange: OTC, region: global}
+
+  fx_cross:
+    asset_class: fx
+    cost_bps: 1.5
+    slippage_bps: 0.5
+    survivorship: none
+    note: "Yahoo spot FX crosses; no carry/swap in returns."
+    instruments:
+      EURGBP=X: {exchange: OTC, region: global}
+      EURJPY=X: {exchange: OTC, region: global}
+      EURCHF=X: {exchange: OTC, region: global}
+      EURCAD=X: {exchange: OTC, region: global}
+      EURAUD=X: {exchange: OTC, region: global}
+      EURNZD=X: {exchange: OTC, region: global}
+      GBPJPY=X: {exchange: OTC, region: global}
+      GBPCHF=X: {exchange: OTC, region: global}
+      GBPCAD=X: {exchange: OTC, region: global}
+      GBPAUD=X: {exchange: OTC, region: global}
+      GBPNZD=X: {exchange: OTC, region: global}
+      AUDJPY=X: {exchange: OTC, region: global}
+      AUDCHF=X: {exchange: OTC, region: global}
+      AUDCAD=X: {exchange: OTC, region: global}
+      AUDNZD=X: {exchange: OTC, region: global}
+      NZDJPY=X: {exchange: OTC, region: global}
+      NZDCHF=X: {exchange: OTC, region: global}
+      NZDCAD=X: {exchange: OTC, region: global}
+      CADJPY=X: {exchange: OTC, region: global}
+      CADCHF=X: {exchange: OTC, region: global}
+      CHFJPY=X: {exchange: OTC, region: global}
+
+  fx_em:
+    asset_class: fx
+    cost_bps: 4.0
+    slippage_bps: 2.0
+    survivorship: none
+    note: "Yahoo spot EM FX; wider spreads; no carry in returns (carry is large for EM -- limitation)."
+    instruments:
+      USDMXN=X: {exchange: OTC, region: latin_america}
+      USDBRL=X: {exchange: OTC, region: latin_america}
+      USDZAR=X: {exchange: OTC, region: africa}
+      USDTRY=X: {exchange: OTC, region: europe}
+      USDINR=X: {exchange: OTC, region: asia_pacific}
+      USDSGD=X: {exchange: OTC, region: asia_pacific}
+      USDSEK=X: {exchange: OTC, region: europe}
+      USDNOK=X: {exchange: OTC, region: europe}
+      USDPLN=X: {exchange: OTC, region: europe}
+      USDKRW=X: {exchange: OTC, region: asia_pacific}
+      USDTHB=X: {exchange: OTC, region: asia_pacific}
+
+  crypto:
+    asset_class: crypto
+    cost_bps: 7.5
+    slippage_bps: 5.0
+    survivorship: partial
+    note: "Yahoo CCY-USD aggregate prices; coin list chosen today among long-lived large caps (mild survivorship)."
+    instruments:
+      BTC-USD: {exchange: aggregate, region: global}
+      ETH-USD: {exchange: aggregate, region: global}
+      XRP-USD: {exchange: aggregate, region: global}
+      LTC-USD: {exchange: aggregate, region: global}
+      BCH-USD: {exchange: aggregate, region: global}
+      ADA-USD: {exchange: aggregate, region: global}
+      DOGE-USD: {exchange: aggregate, region: global}
+      XLM-USD: {exchange: aggregate, region: global}
+      TRX-USD: {exchange: aggregate, region: global}
+      LINK-USD: {exchange: aggregate, region: global}
+      BNB-USD: {exchange: aggregate, region: global}
+      ETC-USD: {exchange: aggregate, region: global}
+      XMR-USD: {exchange: aggregate, region: global}
+      SOL-USD: {exchange: aggregate, region: global}
+      DOT-USD: {exchange: aggregate, region: global}
+
+  etf:
+    asset_class: etf
+    cost_bps: 1.0
+    slippage_bps: 1.0
+    survivorship: none
+    note: "US-listed ETFs, dividend-adjusted (Yahoo adjusted close; OHLC scaled by the same factor)."
+    instruments:
+      SPY: {exchange: NYSE Arca, region: north_america, sector: equity}
+      QQQ: {exchange: NASDAQ, region: north_america, sector: equity}
+      IWM: {exchange: NYSE Arca, region: north_america, sector: equity}
+      DIA: {exchange: NYSE Arca, region: north_america, sector: equity}
+      MDY: {exchange: NYSE Arca, region: north_america, sector: equity}
+      EFA: {exchange: NYSE Arca, region: global, sector: equity}
+      EEM: {exchange: NYSE Arca, region: global, sector: equity}
+      VGK: {exchange: NYSE Arca, region: europe, sector: equity}
+      EWJ: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EWG: {exchange: NYSE Arca, region: europe, sector: equity}
+      EWU: {exchange: NYSE Arca, region: europe, sector: equity}
+      EWC: {exchange: NYSE Arca, region: north_america, sector: equity}
+      EWA: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EWZ: {exchange: NYSE Arca, region: latin_america, sector: equity}
+      EWW: {exchange: NYSE Arca, region: latin_america, sector: equity}
+      EWH: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EWS: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EWT: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EWY: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      FXI: {exchange: NYSE Arca, region: asia_pacific, sector: equity}
+      EZA: {exchange: NYSE Arca, region: africa, sector: equity}
+      TLT: {exchange: NASDAQ, region: north_america, sector: rates}
+      IEF: {exchange: NASDAQ, region: north_america, sector: rates}
+      SHY: {exchange: NASDAQ, region: north_america, sector: rates}
+      TIP: {exchange: NYSE Arca, region: north_america, sector: rates}
+      LQD: {exchange: NYSE Arca, region: north_america, sector: credit}
+      HYG: {exchange: NYSE Arca, region: north_america, sector: credit}
+      EMB: {exchange: NASDAQ, region: global, sector: credit}
+      GLD: {exchange: NYSE Arca, region: global, sector: commodity}
+      SLV: {exchange: NYSE Arca, region: global, sector: commodity}
+      USO: {exchange: NYSE Arca, region: global, sector: commodity}
+      UNG: {exchange: NYSE Arca, region: global, sector: commodity}
+      DBC: {exchange: NYSE Arca, region: global, sector: commodity}
+      DBA: {exchange: NYSE Arca, region: global, sector: commodity}
+      GSG: {exchange: NYSE Arca, region: global, sector: commodity}
+      VNQ: {exchange: NYSE Arca, region: north_america, sector: real_estate}
+      IYR: {exchange: NYSE Arca, region: north_america, sector: real_estate}
+      XLB: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLE: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLF: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLI: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLK: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLP: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLU: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLV: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      XLY: {exchange: NYSE Arca, region: north_america, sector: equity_sector}
+      UUP: {exchange: NYSE Arca, region: global, sector: currency}
+      FXE: {exchange: NYSE Arca, region: global, sector: currency}
+      FXY: {exchange: NYSE Arca, region: global, sector: currency}
+
+  us_stocks_sp100_current:
+    asset_class: equity_single
+    cost_bps: 1.0
+    slippage_bps: 2.0
+    survivorship: current_constituents
+    benchmark: false
+    note: "Large US stocks chosen from today's S&P 100 membership -> survivorship-biased; robustness only."
+    instruments:
+      AAPL: {exchange: NASDAQ, region: north_america}
+      MSFT: {exchange: NASDAQ, region: north_america}
+      AMZN: {exchange: NASDAQ, region: north_america}
+      JPM: {exchange: NYSE, region: north_america}
+      JNJ: {exchange: NYSE, region: north_america}
+      XOM: {exchange: NYSE, region: north_america}
+      PG: {exchange: NYSE, region: north_america}
+      KO: {exchange: NYSE, region: north_america}
+      PFE: {exchange: NYSE, region: north_america}
+      WMT: {exchange: NYSE, region: north_america}
+      INTC: {exchange: NASDAQ, region: north_america}
+      CSCO: {exchange: NASDAQ, region: north_america}
+      ORCL: {exchange: NYSE, region: north_america}
+      IBM: {exchange: NYSE, region: north_america}
+      GE: {exchange: NYSE, region: north_america}
+      BAC: {exchange: NYSE, region: north_america}
+      C: {exchange: NYSE, region: north_america}
+      WFC: {exchange: NYSE, region: north_america}
+      CVX: {exchange: NYSE, region: north_america}
+      MRK: {exchange: NYSE, region: north_america}
+      PEP: {exchange: NASDAQ, region: north_america}
+      MCD: {exchange: NYSE, region: north_america}
+      DIS: {exchange: NYSE, region: north_america}
+      HD: {exchange: NYSE, region: north_america}
+      CAT: {exchange: NYSE, region: north_america}
+      BA: {exchange: NYSE, region: north_america}
+      MMM: {exchange: NYSE, region: north_america}
+      T: {exchange: NYSE, region: north_america}
+      VZ: {exchange: NYSE, region: north_america}
+      UNH: {exchange: NYSE, region: north_america}
+
+  india_stocks_nifty_current:
+    asset_class: equity_single
+    cost_bps: 5.0
+    slippage_bps: 3.0
+    survivorship: current_constituents
+    benchmark: false
+    note: "Large NSE stocks from today's NIFTY 50 membership -> survivorship-biased; robustness only. Cost includes STT/stamp duty approximations."
+    instruments:
+      RELIANCE.NS: {exchange: NSE, region: asia_pacific}
+      TCS.NS: {exchange: NSE, region: asia_pacific}
+      HDFCBANK.NS: {exchange: NSE, region: asia_pacific}
+      INFY.NS: {exchange: NSE, region: asia_pacific}
+      ICICIBANK.NS: {exchange: NSE, region: asia_pacific}
+      HINDUNILVR.NS: {exchange: NSE, region: asia_pacific}
+      ITC.NS: {exchange: NSE, region: asia_pacific}
+      SBIN.NS: {exchange: NSE, region: asia_pacific}
+      BHARTIARTL.NS: {exchange: NSE, region: asia_pacific}
+      KOTAKBANK.NS: {exchange: NSE, region: asia_pacific}
+      LT.NS: {exchange: NSE, region: asia_pacific}
+      AXISBANK.NS: {exchange: NSE, region: asia_pacific}
+      MARUTI.NS: {exchange: NSE, region: asia_pacific}
+      SUNPHARMA.NS: {exchange: NSE, region: asia_pacific}
+      TATAMOTORS.NS: {exchange: NSE, region: asia_pacific}
+      TATASTEEL.NS: {exchange: NSE, region: asia_pacific}
+      WIPRO.NS: {exchange: NSE, region: asia_pacific}
+      ONGC.NS: {exchange: NSE, region: asia_pacific}
+      NTPC.NS: {exchange: NSE, region: asia_pacific}
+      BAJFINANCE.NS: {exchange: NSE, region: asia_pacific}
+
+  crypto_binance_intraday:
+    asset_class: crypto
+    cost_bps: 7.5
+    slippage_bps: 2.5
+    survivorship: partial
+    benchmark: false
+    source: binance
+    note: "Binance spot klines (data.binance.vision), 1h base frequency, resampled to 4h; frequency-robustness study."
+    instruments:
+      BTCUSDT: {exchange: Binance, region: global}
+      ETHUSDT: {exchange: Binance, region: global}
+      BNBUSDT: {exchange: Binance, region: global}
+      XRPUSDT: {exchange: Binance, region: global}
+      ADAUSDT: {exchange: Binance, region: global}
+      LTCUSDT: {exchange: Binance, region: global}
+      LINKUSDT: {exchange: Binance, region: global}
+      DOGEUSDT: {exchange: Binance, region: global}
+      TRXUSDT: {exchange: Binance, region: global}
+      XLMUSDT: {exchange: Binance, region: global}
+      ETCUSDT: {exchange: Binance, region: global}
+      SOLUSDT: {exchange: Binance, region: global}

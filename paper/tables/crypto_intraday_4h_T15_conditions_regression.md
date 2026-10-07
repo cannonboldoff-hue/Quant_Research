@@ -1,0 +1,19 @@
+| term                                 |   coef |    se |       t |     p |
+|:-------------------------------------|-------:|------:|--------:|------:|
+| Intercept                            |  0.187 | 0.027 |   6.955 | 0.000 |
+| ml_stage=S2_regime                   | -0.121 | 0.039 |  -3.106 | 0.002 |
+| ml_stage=S3_sizing                   | -0.193 | 0.043 |  -4.549 | 0.000 |
+| ml_stage=S4_exit                     | -0.136 | 0.039 |  -3.531 | 0.000 |
+| ml_stage=S5_params                   | -0.047 | 0.024 |  -1.922 | 0.055 |
+| ml_model=et                          | -0.020 | 0.017 |  -1.147 | 0.252 |
+| ml_model=lgbm                        |  0.027 | 0.015 |   1.802 | 0.072 |
+| ml_model=mlp                         |  0.002 | 0.017 |   0.130 | 0.897 |
+| ml_model=rf                          |  0.022 | 0.013 |   1.788 | 0.074 |
+| strategy_family=adaptive_ma          | -0.054 | 0.019 |  -2.796 | 0.005 |
+| strategy_family=breakout             |  0.030 | 0.014 |   2.151 | 0.031 |
+| strategy_family=directional          | -0.044 | 0.013 |  -3.436 | 0.001 |
+| strategy_family=oscillator_trend     |  0.010 | 0.018 |   0.565 | 0.572 |
+| strategy_family=price_vs_ma          | -0.117 | 0.025 |  -4.624 | 0.000 |
+| strategy_family=time_series_momentum | -0.140 | 0.019 |  -7.441 | 0.000 |
+| strategy_family=volatility_stop      | -0.011 | 0.021 |  -0.517 | 0.605 |
+| base_sharpe                          | -0.280 | 0.025 | -11.205 | 0.000 |

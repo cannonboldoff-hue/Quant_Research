@@ -26,6 +26,7 @@ Requires-Dist: tqdm>=4.66
 Requires-Dist: joblib>=1.3
 Requires-Dist: nbstripout>=0.6
 Requires-Dist: pyarrow>=14.0
+Requires-Dist: pyyaml>=6.0
 
 # Quant Research Repository
 
@@ -118,3 +119,4 @@ analysis. The strategy and research indexes are a strong first pass to review an
 substitute for your own judgment. The `qresearch` modules are clean reference implementations of the
 consolidated patterns; wire your exact strategy parameters and data sources into them as you migrate
 each notebook.
+# RESEARCH_PAPERS

@@ -34,7 +34,12 @@ def train_classifier(df: pd.DataFrame, tradebook: pd.DataFrame, feature_cols: li
     merged = merged.dropna(subset=feature_cols + [pnl_col])
 
     X, y = merged[feature_cols], (merged[pnl_col] > 0).astype(int)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    # Chronological split: the original random train_test_split mixed future trades into
+    # the training set (look-ahead leakage on time-ordered data); the held-out set is now
+    # strictly the last ``test_size`` fraction of trades by entry time.
+    order = merged[entry_col].argsort(kind="stable").to_numpy()
+    X, y = X.iloc[order], y.iloc[order]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, shuffle=False)
 
     model = XGBClassifier(random_state=random_state, use_label_encoder=False, eval_metric="logloss")
     model.fit(X_train, y_train)

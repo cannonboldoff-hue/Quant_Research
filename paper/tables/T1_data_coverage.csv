@@ -1,0 +1,13 @@
+group,freq,instruments,first_start,last_start,end,total_bars,spikes_removed,hl_fixed,rows_trimmed_gap,nonpositive_dropped,source,asset_class,survivorship,benchmark,exchanges,regions
+crypto,daily,15,2014-09-17,2020-08-20,2026-10-06,49208.0,2.0,2.0,0.0,0.0,yahoo,crypto,partial,True,1,global
+crypto_binance_intraday,1h,12,2017-08-17,2020-08-11,2026-09-30,865205.0,175.0,0.0,0.0,0.0,binance,crypto,partial,False,1,global
+crypto_binance_intraday,4h,12,2017-08-17,2020-08-11,2026-09-30,216493.0,175.0,0.0,0.0,0.0,binance,crypto,partial,False,1,global
+crypto_binance_intraday,daily_binance,12,2017-08-17,2020-08-11,2026-09-30,36104.0,175.0,0.0,0.0,0.0,binance,crypto,partial,False,1,global
+equity_index,daily,34,1985-01-02,2008-11-20,2026-10-06,284573.0,9.0,0.0,0.0,0.0,yahoo,equity,none,True,32,"asia_pacific, europe, latin_america, middle_east, north_america"
+etf,daily,49,1993-01-29,2007-12-19,2026-10-06,313490.0,9.0,41.0,0.0,0.0,yahoo,etf,none,True,2,"africa, asia_pacific, europe, global, latin_america, north_america"
+futures,daily,37,2000-01-03,2017-07-10,2026-10-06,229210.0,8.0,10343.0,6693.0,1.0,yahoo,futures,none,True,5,north_america
+fx_cross,daily,21,1999-01-04,2004-08-20,2026-10-06,126494.0,8.0,3312.0,86.0,0.0,yahoo,fx,none,True,1,global
+fx_em,daily,11,2003-12-01,2006-03-24,2026-10-06,64354.0,13.0,1826.0,1110.0,0.0,yahoo,fx,none,True,1,"africa, asia_pacific, europe, latin_america"
+fx_major,daily,7,1996-10-30,2006-05-16,2026-10-06,42846.0,7.0,1239.0,0.0,0.0,yahoo,fx,none,True,1,global
+india_stocks_nifty_current,daily,19,1996-01-01,2004-11-05,2026-10-06,131760.0,35.0,184.0,0.0,0.0,yahoo,equity_single,current_constituents,False,1,asia_pacific
+us_stocks_sp100_current,daily,30,1985-01-02,1997-05-15,2026-10-06,310597.0,9.0,15.0,0.0,0.0,yahoo,equity_single,current_constituents,False,2,north_america

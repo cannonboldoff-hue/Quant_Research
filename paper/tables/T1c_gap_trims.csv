@@ -1,0 +1,9 @@
+series,dropped_before_gap,start,notes
+PL_F@daily,2317.0,2009-09-29,['trimmed 2317 rows before 2009-09-29 (gap 62d)']
+PA_F@daily,2325.0,2009-08-28,['trimmed 2325 rows before 2009-08-28 (gap 63d)']
+ZM_F@daily,834.0,2003-12-29,['trimmed 834 rows before 2003-12-29 (gap 38d)']
+LE_F@daily,1217.0,2006-02-01,['trimmed 1217 rows before 2006-02-01 (gap 33d)']
+NZDCHF@daily,86.0,2004-05-03,['trimmed 86 rows before 2004-05-03 (gap 34d)']
+USDBRL@daily,194.0,2006-03-24,['trimmed 194 rows before 2006-03-24 (gap 575d)']
+USDSEK@daily,458.0,2003-12-01,['trimmed 458 rows before 2003-12-01 (gap 214d)']
+USDNOK@daily,458.0,2003-12-01,['trimmed 458 rows before 2003-12-01 (gap 214d)']

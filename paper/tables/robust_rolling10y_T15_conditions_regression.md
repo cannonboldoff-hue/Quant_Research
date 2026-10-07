@@ -1,0 +1,23 @@
+| term                                 |   coef |    se |       t |     p |
+|:-------------------------------------|-------:|------:|--------:|------:|
+| Intercept                            |  0.156 | 0.009 |  16.414 | 0.000 |
+| ml_stage=S2_regime                   | -0.104 | 0.008 | -12.361 | 0.000 |
+| ml_stage=S3_sizing                   | -0.006 | 0.006 |  -1.078 | 0.281 |
+| ml_stage=S4_exit                     | -0.026 | 0.005 |  -5.571 | 0.000 |
+| ml_stage=S5_params                   | -0.067 | 0.005 | -13.801 | 0.000 |
+| ml_model=et                          |  0.025 | 0.003 |   8.162 | 0.000 |
+| ml_model=lgbm                        |  0.003 | 0.003 |   1.024 | 0.306 |
+| ml_model=mlp                         | -0.023 | 0.003 |  -9.100 | 0.000 |
+| ml_model=rf                          |  0.021 | 0.003 |   7.304 | 0.000 |
+| strategy_family=adaptive_ma          | -0.001 | 0.003 |  -0.418 | 0.676 |
+| strategy_family=breakout             | -0.007 | 0.003 |  -2.632 | 0.008 |
+| strategy_family=directional          | -0.010 | 0.002 |  -4.375 | 0.000 |
+| strategy_family=oscillator_trend     | -0.002 | 0.003 |  -0.767 | 0.443 |
+| strategy_family=price_vs_ma          | -0.048 | 0.005 |  -9.258 | 0.000 |
+| strategy_family=time_series_momentum | -0.034 | 0.004 |  -7.984 | 0.000 |
+| strategy_family=volatility_stop      | -0.003 | 0.002 |  -1.450 | 0.147 |
+| asset_class=crypto                   | -0.010 | 0.017 |  -0.591 | 0.555 |
+| asset_class=etf                      | -0.023 | 0.013 |  -1.751 | 0.080 |
+| asset_class=futures                  | -0.083 | 0.013 |  -6.314 | 0.000 |
+| asset_class=fx                       | -0.117 | 0.010 | -11.696 | 0.000 |
+| base_sharpe                          | -0.199 | 0.015 | -13.012 | 0.000 |

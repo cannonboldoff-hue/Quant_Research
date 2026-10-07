@@ -1,0 +1,6 @@
+stage,pipeline role
+S1_filter,signal filtering / trade selection (meta-labelling of new trades)
+S2_regime,trend / regime detection gate (strategy-agnostic)
+S3_sizing,position sizing from predicted probability of profit
+S4_exit,ML exit decision inside open trades
+S5_params,parameter adaptation (choose slow/base/fast variant monthly)

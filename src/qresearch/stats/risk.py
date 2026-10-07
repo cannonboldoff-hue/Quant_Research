@@ -130,7 +130,7 @@ def romano_wolf_stepdown(returns_list: list[pd.Series | np.ndarray], alpha: floa
 
 def paired_bootstrap_ci(returns_a: pd.Series | np.ndarray, returns_b: pd.Series | np.ndarray,
                          statistic: str = "mean", n_resamples: int = 2000, ci: float = 0.95,
-                         seed: int = 0) -> tuple[float, float]:
+                         seed: int = 0, block: int = 20) -> tuple[float, float]:
     """Bootstrap CI for the difference in a statistic between two strategies'
     return series. ``statistic``: "mean", "sharpe", or a callable(np.ndarray)->float.
 
@@ -148,9 +148,21 @@ def paired_bootstrap_ci(returns_a: pd.Series | np.ndarray, returns_b: pd.Series 
 
     rng = np.random.default_rng(seed)
     diffs = np.empty(n_resamples)
+    paired = len(a) == len(b)
+    block = max(int(block), 1)
     for i in range(n_resamples):
-        sa = rng.choice(a, size=len(a), replace=True)
-        sb = rng.choice(b, size=len(b), replace=True)
+        if paired:
+            # Paired circular block bootstrap: same time indices for both series, so the
+            # cross-correlation and serial dependence of the returns are preserved. (The
+            # original version resampled a and b independently and i.i.d., which ignores
+            # both and overstates significance for overlapping strategies.)
+            n = len(a)
+            starts = rng.integers(0, n, size=int(np.ceil(n / block)))
+            idx = ((starts[:, None] + np.arange(block)[None, :]) % n).ravel()[:n]
+            sa, sb = a[idx], b[idx]
+        else:
+            sa = rng.choice(a, size=len(a), replace=True)
+            sb = rng.choice(b, size=len(b), replace=True)
         diffs[i] = stat_fn(sa) - stat_fn(sb)
 
     alpha = 1 - ci

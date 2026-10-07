@@ -44,7 +44,10 @@ class ProvenanceStore:
         # overwriting, silently duplicating trades. hashlib is stable.
         key = hashlib.sha1(f"{ticker}|{params}".encode()).hexdigest()[:16]
         fname = f"{ticker}_{key}.parquet"
-        out.to_parquet(part_dir / fname, index=False)
+        # campaign_id/strategy_id live in the hive partition path; also storing
+        # them as file columns makes pyarrow's schema merge fail under pandas>=3
+        # (file column = large_string vs partition field = string).
+        out.drop(columns=["campaign_id", "strategy_id"]).to_parquet(part_dir / fname, index=False)
         _log.debug("wrote %d trades -> %s", len(out), part_dir / fname)
 
     def read(self, campaign_id: str | None = None, strategy_id: str | None = None) -> pd.DataFrame:

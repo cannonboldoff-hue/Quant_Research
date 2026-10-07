@@ -15,3 +15,10 @@ data/external/*
 outputs/
 *.log
 .DS_Store
+
+# tfml study: large local artifacts (registry is exported to results/tfml/registry_*.csv.gz)
+*.sqlite
+data/tfml_fetch.log
+
+# exceeds GitHub 100 MB file limit
+results/tfml/registry_experiments.csv.gz

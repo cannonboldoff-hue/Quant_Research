@@ -1,0 +1,40 @@
+id,name,family,reference,params,indicators,direction
+sma_50_200,SMA 50/200 crossover (golden/death cross),ma_crossover,"Brock, Lakonishok & LeBaron (1992); Gartley (1935)","fast=50, slow=200, kind=sma",SMA,long/short
+ema_12_26,EMA 12/26 crossover,ma_crossover,Appel (1979); standard EMA crossover,"fast=12, slow=26, kind=ema",EMA,long/short
+dema_20_50,DEMA 20/50 crossover,ma_crossover,Mulloy (1994),"fast=20, slow=50, kind=dema",DEMA,long/short
+zlema_10_30,Zero-lag EMA 10/30 crossover,ma_crossover,Ehlers & Way (2010),"fast=10, slow=30, kind=zlema",ZLEMA,long/short
+jma_7_21,Jurik MA 7/21 crossover (repository baseline),ma_crossover,Jurik Research; this repository's JMA signal family,"fast=7, slow=21",JMA,long/short
+triple_ma_4_9_18,Triple MA 4/9/18,ma_crossover,Allen (1972) 4-9-18 day method,"a=4, b=9, c_=18",SMA,long/short
+gmma,Guppy multiple moving average,ma_crossover,Guppy (2004),scale=1.0,EMA x12,long/short
+bll_vma_200,Price vs 200-day MA with 1% band,price_vs_ma,"Brock, Lakonishok & LeBaron (1992)","n=200, band=0.01",SMA,long/short
+faber_10m,Faber 10-month SMA timing (long/cash),price_vs_ma,Faber (2007),months=10,monthly SMA,long/cash
+kama_10,"Price vs KAMA(10,2,30)",adaptive_ma,Kaufman (1995),"n=10, fast=2, slow=30","KAMA, efficiency ratio",long/short
+frama_16,Price vs FRAMA(16),adaptive_ma,Ehlers (2005),n=16,FRAMA,long/short
+vidya_14,"Price vs VIDYA(14, CMO 9)",adaptive_ma,Chande (1992),"n=14, kind=vidya","VIDYA, CMO",long/short
+mcginley_14,Price vs McGinley Dynamic(14),adaptive_ma,McGinley (1990),"n=14, kind=mcginley",McGinley Dynamic,long/short
+t3_20,Price vs Tillson T3(20),adaptive_ma,Tillson (1998),"n=20, kind=t3",T3,long/short
+hma_55_slope,Hull MA(55) slope,adaptive_ma,Hull (2005),n=55,HMA,long/short
+donchian_20,Donchian 20-day channel breakout (stop-and-reverse),breakout,Donchian (1960); 4-week rule,n=20,Donchian channel,long/short
+turtle_20_10,Turtle System 1 (20/10),breakout,Dennis & Eckhardt; Faith (2007),"entry=20, exit=10",Donchian channel,long/short
+turtle_55_20,Turtle System 2 (55/20),breakout,Dennis & Eckhardt; Faith (2007),"entry=55, exit=20",Donchian channel,long/short
+bollinger_20_2,"Bollinger band breakout, exit at mid",breakout,Bollinger (2001),"n=20, k=2.0",Bollinger bands,long/short
+keltner_20,"Keltner channel breakout, exit at mid",breakout,Keltner (1960); Raschke ATR version,"n=20, atr_n=10, k=2.0","Keltner channel, ATR",long/short
+supertrend_10_3,"SuperTrend(10,3)",volatility_stop,Seban (SuperTrend); ATR bands,"n=10, mult=3.0","ATR, SuperTrend",long/short
+psar,Parabolic SAR (0.02/0.2),volatility_stop,Wilder (1978),"af=0.02, af_max=0.2",Parabolic SAR,long/short
+chandelier_22_3,"Chandelier exit stop-and-reverse (22,3)",volatility_stop,LeBeau & Lucas (1992),"n=22, mult=3.0","ATR, highest high/lowest low",long/short
+chande_kroll,"Chande-Kroll stop (10,1,9)",volatility_stop,Chande & Kroll (1994),"p=10, x=1.0, q=9",ATR,long/short
+tsmom_252,Time-series momentum 12m,time_series_momentum,"Moskowitz, Ooi & Pedersen (2012)",n=252,ROC,long/short
+tsmom_multi,Multi-horizon TSMOM (1/3/12m),time_series_momentum,"Hurst, Ooi & Pedersen (2017)","n1=21, n2=63, n3=252",ROC,long/short
+abs_mom_12m,Absolute momentum vs T-bills (long/cash),time_series_momentum,Antonacci (2014),n=252,"ROC, T-bill rate",long/cash
+linreg_63,63-day regression slope sign,time_series_momentum,Clenow (2015); regression trend,n=63,linear regression,long/short
+macd_12_26_9,MACD signal-line crossover,oscillator_trend,Appel (1979),"fast=12, slow=26, signal=9",MACD,long/short
+trix_15,TRIX(15) signal crossover,oscillator_trend,Hutson (1983),"n=15, signal=9",TRIX,long/short
+kst,Know Sure Thing signal crossover,oscillator_trend,Pring (1992),scale=1.0,"KST, ROC",long/short
+tsi_25_13,True Strength Index signal crossover,oscillator_trend,Blau (1991),"r=25, s=13, signal=7",TSI,long/short
+cci_20_100,CCI(20) +/-100 trend rule,oscillator_trend,Lambert (1980),"n=20, level=100.0",CCI,long/short
+elder_impulse,Elder Impulse system,oscillator_trend,Elder (2002),"ema_n=13, fast=12, slow=26, signal=9","EMA, MACD",long/short
+adx_dmi_14,"ADX/DMI (ADX>25, DI direction)",directional,Wilder (1978),"n=14, threshold=25.0","ADX, +DI/-DI",long/short
+aroon_25,Aroon up/down crossover,directional,Chande (1995),n=25,Aroon,long/short
+vortex_14,Vortex indicator crossover,directional,Botes & Siepman (2010),n=14,Vortex,long/short
+ichimoku,Ichimoku cloud + TK cross,directional,Hosoda (1969),"tenkan=9, kijun=26, senkou=52",Ichimoku,long/short
+heikin_ashi_3,Heikin-Ashi 3-candle trend,directional,Heikin-Ashi (Homma tradition),n=3,Heikin-Ashi,long/short

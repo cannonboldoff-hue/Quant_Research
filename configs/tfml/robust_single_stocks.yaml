@@ -1,0 +1,24 @@
+# Robustness run (robust_single_stocks): identical to benchmark.yaml except for the settings that differ below.
+run_id: robust_single_stocks
+frequency: daily
+validation: wf_expanding
+first_test_year: 2006
+last_test_year: 2026
+val_years: 2
+retrain_every_years: 1
+execution: next_open
+cost_mult: 1.0
+target_vol: 0.10
+h_bar: 10
+h_regime: 20
+h_variant: 21
+train_stride: 0          # 0 = subsample training rows at the label horizon (non-overlapping labels)
+max_train_rows: 150000
+embargo_bars: 5
+pred_smooth_span: 5      # causal EMA of bar-level ML outputs (fixed a priori)
+seed: 0
+subperiods: [[2006, 2010], [2011, 2015], [2016, 2020], [2021, 2026]]
+panel:
+  benchmark_only: false
+  groups: [us_stocks_sp100_current, india_stocks_nifty_current]
+  start: "1990-01-01"

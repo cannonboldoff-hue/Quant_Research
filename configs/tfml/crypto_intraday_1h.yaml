@@ -1,0 +1,23 @@
+# Frequency robustness: Binance spot crypto at 1h bars (strategy/label horizons in bars).
+run_id: crypto_intraday_1h
+frequency: "1h"
+validation: wf_expanding
+first_test_year: 2021
+last_test_year: 2026
+val_years: 1
+retrain_every_years: 1
+execution: next_open
+cost_mult: 1.0
+target_vol: 0.10
+h_bar: 10
+h_regime: 20
+h_variant: 21
+train_stride: 0
+max_train_rows: 150000
+embargo_bars: 5
+pred_smooth_span: 5
+seed: 0
+subperiods: [[2021, 2022], [2023, 2024], [2025, 2026]]
+panel:
+  groups: [crypto_binance_intraday]
+  benchmark_only: false

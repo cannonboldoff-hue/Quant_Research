@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 from qresearch.campaign import ProvenanceStore, run_campaign
+from qresearch.campaign.runner import STOP_GRID, _param_combos
 from qresearch.signals import jma_signals
 from qresearch.stats import deflated_sharpe
 
@@ -40,7 +41,9 @@ def test_campaign_e2e_synthetic(tmp_path):
                            provenance_dir=tmp_path / "provenance", n_jobs=1)
     assert len(result) == 2  # one task per ticker
     assert (result["errors"].apply(len) == 0).all()
-    assert result["n_runs"].sum() == 2
+    # one run per (ticker x signal-param combo x STOP_GRID risk combo)
+    n_risk = len(_param_combos(STOP_GRID, {}))
+    assert result["n_runs"].sum() == 2 * n_risk
 
     store = ProvenanceStore(tmp_path / "provenance")
     trades = store.read(campaign_id="e2e_synth")
@@ -51,7 +54,7 @@ def test_campaign_e2e_synthetic(tmp_path):
     assert 0.0 <= dsr <= 1.0
 
 
-@pytest.mark.skipif(not REAL_PROCESSED.exists(), reason="data/processed not populated (run scripts/process_raw_data.py)")
+@pytest.mark.skipif(not any((REAL_PROCESSED / "indices").glob("*/*.parquet")), reason="data/processed not populated (run scripts/process_raw_data.py)")
 def test_campaign_e2e_real_slice(tmp_path):
     """Same pipeline against a small real data slice from Phase 1's ETL."""
     from qresearch.campaign import StrategyRegistry
