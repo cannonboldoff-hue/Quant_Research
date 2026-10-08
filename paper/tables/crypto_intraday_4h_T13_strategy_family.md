@@ -4,7 +4,7 @@
 | adaptive_ma          | S2_regime  |   6 |          0.131 |            0.500 |             -0.258 |
 | adaptive_ma          | S3_sizing  |   6 |         -0.003 |            0.500 |             -0.258 |
 | adaptive_ma          | S4_exit    |   6 |          0.057 |            0.667 |             -0.258 |
-| adaptive_ma          | S5_params  |   6 |          0.256 |            1.000 |             -0.258 |
+| adaptive_ma          | S5_params  |   6 |          0.255 |            1.000 |             -0.258 |
 | breakout             | S1_filter  |   5 |          0.347 |            1.000 |              0.531 |
 | breakout             | S2_regime  |   5 |         -0.166 |            0.000 |              0.531 |
 | breakout             | S3_sizing  |   5 |          0.051 |            0.600 |              0.531 |

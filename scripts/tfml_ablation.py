@@ -33,6 +33,12 @@ from qresearch.tfml.features import FEATURE_NAMES, FEATURE_SPECS
 from qresearch.tfml.panel import build_panel
 from qresearch.tfml.pipeline import RunConfig
 
+# 15 representative strategies covering all 8 families (the "all"-features reference for these
+# is taken from the full 39-strategy ``ablation_all`` run).
+SUBSET = ["sma_50_200", "ema_12_26", "kama_10", "hma_55_slope", "donchian_20", "turtle_55_20",
+          "supertrend_10_3", "psar", "tsmom_252", "faber_10m", "macd_12_26_9", "trix_15",
+          "adx_dmi_14", "ichimoku", "aroon_25"]
+
 BLOCKS = {
     "all": None,
     "momentum": {"momentum"},
@@ -48,6 +54,7 @@ def main():
     ap.add_argument("--block", required=True, choices=list(BLOCKS))
     ap.add_argument("--config", default="configs/tfml/benchmark.yaml")
     ap.add_argument("--n-jobs", type=int, default=6)
+    ap.add_argument("--subset", action="store_true", help="run only the 15 representative strategies")
     args = ap.parse_args()
     raw = yaml.safe_load(Path(args.config).read_text())
     panel_cfg = raw.pop("panel", {})
@@ -67,18 +74,25 @@ def main():
     out_dir = R.RESULTS / cfg.run_id
     out_dir.mkdir(parents=True, exist_ok=True)
     dh = dataset_hash(P)
+    strategies = [S.get(i) for i in SUBSET] if args.subset else list(S.STRATEGIES)
+    if args.subset:   # clear earlier results of this block so no stale rows remain
+        with R.connect() as con:
+            for t in ("experiments", "ml_selection"):
+                con.execute(f"DELETE FROM {t} WHERE run_id = ?", (cfg.run_id,))
+        for f in out_dir.glob("*.parquet"):
+            f.unlink()
     R.write("runs", [{"run_id": cfg.run_id, "started": time.ctime(), "git_commit": R.git_commit(), "code_hash": R.code_hash(),
                       "config": __import__("json").dumps({**asdict(cfg), "panel": panel_cfg, "feature_block": args.block}, default=str),
                       "n_instruments": len(P.meta), "n_rows": P.n, "dataset_hash": dh}], replace_keys={"run_id": cfg.run_id})
     ctx = {"rf": D.load_risk_free()}
     t0 = time.time()
     res = Parallel(n_jobs=args.n_jobs, return_as="generator_unordered", max_nbytes="1M")(
-        delayed(_worker)(s.id, P, cfg, None, ctx, dh, out_dir) for s in S.STRATEGIES)
+        delayed(_worker)(s.id, P, cfg, None, ctx, dh, out_dir) for s in strategies)
     ok = 0
     for sid, status, dt, msg in res:
         ok += status == "ok"
         print(f"[{status}] {sid} {dt:.0f}s {'' if status == 'ok' else msg}", flush=True)
-    print(f"ablation {args.block}: {ok}/{len(S.STRATEGIES)} ok in {time.time() - t0:.0f}s")
+    print(f"ablation {args.block}: {ok}/{len(strategies)} ok in {time.time() - t0:.0f}s")
 
 
 if __name__ == "__main__":

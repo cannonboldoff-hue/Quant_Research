@@ -357,25 +357,33 @@ def conditions_regression(e: pd.DataFrame, run: str):
                                           "terms": t.to_dict("records")}
 
 
+def _pbo_one(path: Path):
+    """PBO (CSCV, 16 blocks) + deflated Sharpe of the ex-post best config for one strategy."""
+    sdf = pd.read_parquet(path)
+    cols = ["base"] + [c for c in sdf.columns if "|" in c and "::" not in c and not c.endswith("|selected")]
+    M = sdf[cols].dropna(how="all").fillna(0.0)
+    if len(M) < 500:
+        return None
+    ann = len(M) / ((M.index[-1] - M.index[0]).days / 365.25)
+    p = pbo(M.to_numpy().T, n_splits=16)
+    sr = M.mean() / M.std() * np.sqrt(ann)
+    best = sr.drop("base").idxmax()
+    dsr = ST.deflated_sharpe(sr[best], len(M), n_trials=len(cols) - 1, sr_var_trials=float(sr.drop("base").var()),
+                             skew=float(M[best].skew()), kurt=float(M[best].kurt() + 3), ann=ann)
+    row = {"strategy": path.stem, "pbo": p, "best_config_ex_post": best, "best_sharpe": sr[best],
+           "base_sharpe": sr["base"], "dsr_best": dsr}
+    return row, sdf[["base"] + [c for c in sdf.columns if c.endswith("|selected") and "::" not in c]]
+
+
 def overfitting_tables(run: str):
-    """PBO (CSCV) across each strategy's ML configurations + baseline, DSR of the best config."""
+    """PBO (CSCV) across each strategy's ML configurations + baseline, DSR of the best config
+    (strategies evaluated in parallel)."""
+    from joblib import Parallel, delayed
     out_dir = R.RESULTS / run
-    rows, comp = [], {}
-    for f in sorted(out_dir.glob("*.parquet")):
-        sdf = pd.read_parquet(f)
-        cols = ["base"] + [c for c in sdf.columns if "|" in c and "::" not in c and not c.endswith("|selected")]
-        M = sdf[cols].dropna(how="all").fillna(0.0)
-        if len(M) < 500:
-            continue
-        ann = len(M) / ((M.index[-1] - M.index[0]).days / 365.25)
-        p = pbo(M.to_numpy().T, n_splits=16)
-        sr = M.mean() / M.std() * np.sqrt(ann)
-        best = sr.drop("base").idxmax()
-        dsr = ST.deflated_sharpe(sr[best], len(M), n_trials=len(cols) - 1, sr_var_trials=float(sr.drop("base").var()),
-                                 skew=float(M[best].skew()), kurt=float(M[best].kurt() + 3), ann=ann)
-        rows.append({"strategy": f.stem, "pbo": p, "best_config_ex_post": best, "best_sharpe": sr[best],
-                     "base_sharpe": sr["base"], "dsr_best": dsr})
-        comp[f.stem] = sdf[["base"] + [c for c in sdf.columns if c.endswith("|selected") and "::" not in c]]
+    res = Parallel(n_jobs=10)(delayed(_pbo_one)(f) for f in sorted(out_dir.glob("*.parquet")))
+    res = [r for r in res if r is not None]
+    rows = [r[0] for r in res]
+    comp = {r[0]["strategy"]: r[1] for r in res}
     t = pd.DataFrame(rows)
     if not t.empty:
         save(t, f"{run}_T16_pbo_dsr")
@@ -583,8 +591,14 @@ def cross_run(runs: list[str]):
 
 def ablation_table(runs: list[str]):
     rows = []
-    for r in [x for x in runs if x.startswith("ablation_")]:
-        e, _ = load(r)
+    abl = [x for x in runs if x.startswith("ablation_")]
+    loaded = {r: load(r)[0] for r in abl}
+    # compare blocks on the strategies present in every block (the single-family blocks run
+    # on a 15-strategy subset; the "all" reference ran on all 39)
+    common = set.intersection(*[set(e[e.level == "portfolio"].strategy) for e in loaded.values()]) if loaded else set()
+    for r in abl:
+        e = loaded[r]
+        e = e[e.strategy.isin(common)]
         pf = e[(e.level == "portfolio") & (e.ml_stage != "none")]
         for (stg, mdl), g in pf.groupby(["ml_stage", "ml_model"]):
             rows.append({"feature_block": r.replace("ablation_", ""), "stage": stg, "model": mdl, "n": len(g),
@@ -597,6 +611,7 @@ def ablation_table(runs: list[str]):
         return
     save(t, "T20_feature_family_ablation")
     SUMMARY["ablation"] = t.to_dict("records")
+    SUMMARY["ablation_meta"] = {"n_strategies_common": len(common), "strategies": sorted(common)}
     sel = t[t.model == "selected"].pivot(index="feature_block", columns="stage", values="mean_dSharpe")
     plt = _mpl()
     fig, ax = plt.subplots(figsize=(6, 3))

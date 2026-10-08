@@ -15,7 +15,7 @@
 | triple_ma_4_9_18 | ma_crossover         | S3_sizing  |        -0.311 |    0.274 |      0.585 | 0.000 |    0.000 |  0.000 | {"logreg": 5, "rf": 6, "mlp": 2, "lgbm": 3, "et": 5}  |
 | triple_ma_4_9_18 | ma_crossover         | S4_exit    |        -0.311 |    0.083 |      0.393 | 0.010 |    1.000 |  0.025 | {"logreg": 4, "et": 7, "rf": 5, "lgbm": 4, "mlp": 1}  |
 | triple_ma_4_9_18 | ma_crossover         | S5_params  |        -0.311 |    0.050 |      0.360 | 0.011 |    1.000 |  0.028 | {"lgbm": 13, "rf": 1, "logreg": 3, "et": 2, "mlp": 2} |
-| ema_12_26        | ma_crossover         | S1_filter  |         0.193 |    0.643 |      0.450 | 0.005 |    0.742 |  0.018 | {"rf": 5, "et": 10, "mlp": 3, "logreg": 2, "lgbm": 1} |
+| ema_12_26        | ma_crossover         | S1_filter  |         0.193 |    0.643 |      0.450 | 0.005 |    0.742 |  0.017 | {"rf": 5, "et": 10, "mlp": 3, "logreg": 2, "lgbm": 1} |
 | ema_12_26        | ma_crossover         | S2_regime  |         0.193 |    0.072 |     -0.120 | 0.397 |    1.000 |  0.523 | {"lgbm": 3, "rf": 6, "logreg": 6, "mlp": 2, "et": 4}  |
 | ema_12_26        | ma_crossover         | S3_sizing  |         0.193 |    0.679 |      0.486 | 0.001 |    0.157 |  0.004 | {"et": 12, "mlp": 1, "lgbm": 3, "rf": 3, "logreg": 2} |
 | ema_12_26        | ma_crossover         | S4_exit    |         0.193 |    0.610 |      0.417 | 0.009 |    1.000 |  0.024 | {"et": 8, "lgbm": 5, "rf": 4, "logreg": 2, "mlp": 2}  |
@@ -65,11 +65,6 @@
 | hma_55_slope     | adaptive_ma          | S3_sizing  |         0.025 |    0.531 |      0.506 | 0.000 |    0.000 |  0.000 | {"logreg": 4, "et": 9, "mlp": 2, "lgbm": 2, "rf": 4}  |
 | hma_55_slope     | adaptive_ma          | S4_exit    |         0.025 |    0.345 |      0.320 | 0.048 |    1.000 |  0.092 | {"logreg": 1, "et": 6, "mlp": 6, "lgbm": 5, "rf": 3}  |
 | hma_55_slope     | adaptive_ma          | S5_params  |         0.025 |    0.279 |      0.254 | 0.124 |    1.000 |  0.194 | {"lgbm": 8, "logreg": 5, "et": 1, "rf": 3, "mlp": 4}  |
-| mcginley_14      | adaptive_ma          | S1_filter  |        -0.007 |    0.534 |      0.541 | 0.002 |    0.225 |  0.006 | {"et": 17, "mlp": 1, "rf": 2, "lgbm": 1}              |
-| mcginley_14      | adaptive_ma          | S2_regime  |        -0.007 |   -0.026 |     -0.019 | 0.896 |    1.000 |  0.924 | {"lgbm": 3, "rf": 8, "logreg": 2, "et": 4, "mlp": 4}  |
-| mcginley_14      | adaptive_ma          | S3_sizing  |        -0.007 |    0.469 |      0.476 | 0.000 |    0.000 |  0.000 | {"et": 10, "lgbm": 2, "logreg": 5, "rf": 4}           |
-| mcginley_14      | adaptive_ma          | S4_exit    |        -0.007 |    0.227 |      0.233 | 0.100 |    1.000 |  0.161 | {"rf": 2, "et": 8, "lgbm": 5, "logreg": 5, "mlp": 1}  |
-| mcginley_14      | adaptive_ma          | S5_params  |        -0.007 |    0.246 |      0.252 | 0.006 |    0.845 |  0.019 | {"mlp": 1, "lgbm": 6, "rf": 4, "et": 6, "logreg": 4}  |
 | t3_20            | adaptive_ma          | S1_filter  |        -0.168 |    0.442 |      0.610 | 0.002 |    0.296 |  0.008 | {"lgbm": 3, "et": 10, "mlp": 1, "rf": 6, "logreg": 1} |
 | t3_20            | adaptive_ma          | S2_regime  |        -0.168 |   -0.094 |      0.074 | 0.606 |    1.000 |  0.699 | {"lgbm": 6, "rf": 3, "mlp": 5, "logreg": 3, "et": 4}  |
 | t3_20            | adaptive_ma          | S3_sizing  |        -0.168 |    0.349 |      0.517 | 0.001 |    0.084 |  0.003 | {"et": 9, "lgbm": 2, "logreg": 5, "rf": 4, "mlp": 1}  |
@@ -83,9 +78,9 @@
 | turtle_20_10     | breakout             | S1_filter  |        -0.019 |    0.541 |      0.560 | 0.001 |    0.157 |  0.004 | {"et": 9, "logreg": 6, "rf": 5, "lgbm": 1}            |
 | turtle_20_10     | breakout             | S2_regime  |        -0.019 |   -0.106 |     -0.087 | 0.549 |    1.000 |  0.661 | {"lgbm": 5, "rf": 5, "logreg": 6, "mlp": 1, "et": 4}  |
 | turtle_20_10     | breakout             | S3_sizing  |        -0.019 |    0.543 |      0.562 | 0.000 |    0.000 |  0.000 | {"rf": 4, "mlp": 2, "lgbm": 2, "et": 11, "logreg": 2} |
-| turtle_20_10     | breakout             | S4_exit    |        -0.019 |    0.384 |      0.403 | 0.006 |    0.804 |  0.018 | {"lgbm": 2, "mlp": 5, "logreg": 4, "et": 8, "rf": 2}  |
+| turtle_20_10     | breakout             | S4_exit    |        -0.019 |    0.384 |      0.403 | 0.006 |    0.798 |  0.018 | {"lgbm": 2, "mlp": 5, "logreg": 4, "et": 8, "rf": 2}  |
 | turtle_20_10     | breakout             | S5_params  |        -0.019 |    0.180 |      0.199 | 0.068 |    1.000 |  0.118 | {"logreg": 4, "lgbm": 8, "rf": 4, "mlp": 4, "et": 1}  |
-| turtle_55_20     | breakout             | S1_filter  |         0.214 |    0.629 |      0.415 | 0.006 |    0.845 |  0.019 | {"et": 7, "mlp": 3, "lgbm": 5, "rf": 5, "logreg": 1}  |
+| turtle_55_20     | breakout             | S1_filter  |         0.214 |    0.629 |      0.415 | 0.006 |    0.838 |  0.019 | {"et": 7, "mlp": 3, "lgbm": 5, "rf": 5, "logreg": 1}  |
 | turtle_55_20     | breakout             | S2_regime  |         0.214 |    0.150 |     -0.064 | 0.676 |    1.000 |  0.767 | {"lgbm": 5, "rf": 7, "logreg": 3, "mlp": 1, "et": 5}  |
 | turtle_55_20     | breakout             | S3_sizing  |         0.214 |    0.604 |      0.390 | 0.004 |    0.634 |  0.015 | {"et": 9, "rf": 4, "lgbm": 5, "mlp": 2, "logreg": 1}  |
 | turtle_55_20     | breakout             | S4_exit    |         0.214 |    0.533 |      0.319 | 0.043 |    1.000 |  0.088 | {"et": 9, "mlp": 5, "lgbm": 4, "rf": 2, "logreg": 1}  |
@@ -93,7 +88,7 @@
 | keltner_20       | breakout             | S1_filter  |         0.035 |    0.651 |      0.617 | 0.000 |    0.000 |  0.000 | {"et": 8, "logreg": 3, "lgbm": 1, "rf": 9}            |
 | keltner_20       | breakout             | S2_regime  |         0.035 |    0.072 |      0.037 | 0.819 |    1.000 |  0.873 | {"lgbm": 6, "rf": 6, "logreg": 5, "et": 4}            |
 | keltner_20       | breakout             | S3_sizing  |         0.035 |    0.575 |      0.540 | 0.000 |    0.000 |  0.000 | {"lgbm": 5, "et": 4, "mlp": 2, "rf": 5, "logreg": 5}  |
-| keltner_20       | breakout             | S4_exit    |         0.035 |    0.425 |      0.390 | 0.006 |    0.804 |  0.018 | {"lgbm": 4, "et": 6, "rf": 2, "logreg": 5, "mlp": 4}  |
+| keltner_20       | breakout             | S4_exit    |         0.035 |    0.425 |      0.390 | 0.006 |    0.798 |  0.018 | {"lgbm": 4, "et": 6, "rf": 2, "logreg": 5, "mlp": 4}  |
 | keltner_20       | breakout             | S5_params  |         0.035 |    0.271 |      0.236 | 0.023 |    1.000 |  0.052 | {"mlp": 4, "rf": 2, "lgbm": 5, "logreg": 4, "et": 6}  |
 | bollinger_20_2   | breakout             | S1_filter  |        -0.076 |    0.398 |      0.474 | 0.004 |    0.634 |  0.015 | {"logreg": 5, "et": 11, "rf": 4, "mlp": 1}            |
 | bollinger_20_2   | breakout             | S2_regime  |        -0.076 |   -0.095 |     -0.019 | 0.900 |    1.000 |  0.924 | {"lgbm": 4, "rf": 5, "logreg": 5, "et": 6, "mlp": 1}  |
@@ -137,7 +132,7 @@
 | tsmom_multi      | time_series_momentum | S5_params  |         0.348 |    0.468 |      0.120 | 0.180 |    1.000 |  0.267 | {"logreg": 5, "lgbm": 2, "et": 5, "rf": 3, "mlp": 6}  |
 | linreg_63        | time_series_momentum | S1_filter  |         0.251 |    0.544 |      0.293 | 0.037 |    1.000 |  0.078 | {"et": 9, "mlp": 1, "logreg": 6, "rf": 3, "lgbm": 2}  |
 | linreg_63        | time_series_momentum | S2_regime  |         0.251 |    0.144 |     -0.108 | 0.389 |    1.000 |  0.519 | {"rf": 9, "logreg": 4, "et": 2, "mlp": 2, "lgbm": 4}  |
-| linreg_63        | time_series_momentum | S3_sizing  |         0.251 |    0.613 |      0.362 | 0.006 |    0.804 |  0.018 | {"et": 9, "rf": 3, "logreg": 2, "lgbm": 3, "mlp": 4}  |
+| linreg_63        | time_series_momentum | S3_sizing  |         0.251 |    0.613 |      0.362 | 0.006 |    0.798 |  0.018 | {"et": 9, "rf": 3, "logreg": 2, "lgbm": 3, "mlp": 4}  |
 | linreg_63        | time_series_momentum | S4_exit    |         0.251 |    0.475 |      0.224 | 0.231 |    1.000 |  0.334 | {"mlp": 6, "lgbm": 5, "logreg": 1, "et": 6, "rf": 3}  |
 | linreg_63        | time_series_momentum | S5_params  |         0.251 |    0.511 |      0.260 | 0.114 |    1.000 |  0.181 | {"et": 5, "lgbm": 7, "rf": 4, "logreg": 4, "mlp": 1}  |
 | trix_15          | oscillator_trend     | S1_filter  |        -0.107 |    0.507 |      0.615 | 0.001 |    0.084 |  0.003 | {"logreg": 4, "rf": 7, "et": 9, "lgbm": 1}            |
@@ -178,7 +173,7 @@
 | elder_impulse    | oscillator_trend     | S1_filter  |        -0.720 |   -0.171 |      0.549 | 0.000 |    0.000 |  0.000 | {"logreg": 1, "lgbm": 7, "mlp": 3, "et": 8, "rf": 2}  |
 | elder_impulse    | oscillator_trend     | S2_regime  |        -0.720 |   -0.417 |      0.303 | 0.013 |    1.000 |  0.032 | {"lgbm": 6, "mlp": 4, "logreg": 4, "rf": 5, "et": 2}  |
 | elder_impulse    | oscillator_trend     | S3_sizing  |        -0.720 |   -0.292 |      0.428 | 0.001 |    0.157 |  0.004 | {"logreg": 6, "et": 5, "lgbm": 6, "rf": 4}            |
-| elder_impulse    | oscillator_trend     | S4_exit    |        -0.720 |   -0.363 |      0.357 | 0.006 |    0.804 |  0.018 | {"et": 4, "mlp": 2, "logreg": 7, "lgbm": 2, "rf": 6}  |
+| elder_impulse    | oscillator_trend     | S4_exit    |        -0.720 |   -0.363 |      0.357 | 0.006 |    0.798 |  0.018 | {"et": 4, "mlp": 2, "logreg": 7, "lgbm": 2, "rf": 6}  |
 | elder_impulse    | oscillator_trend     | S5_params  |        -0.720 |   -0.640 |      0.080 | 0.125 |    1.000 |  0.194 | {"lgbm": 4, "mlp": 1, "et": 5, "rf": 6, "logreg": 5}  |
 | ichimoku         | directional          | S1_filter  |         0.194 |    0.581 |      0.387 | 0.009 |    1.000 |  0.024 | {"et": 14, "mlp": 2, "logreg": 3, "rf": 1, "lgbm": 1} |
 | ichimoku         | directional          | S2_regime  |         0.194 |    0.112 |     -0.083 | 0.589 |    1.000 |  0.684 | {"lgbm": 6, "rf": 5, "logreg": 5, "mlp": 2, "et": 3}  |
@@ -195,3 +190,8 @@
 | heikin_ashi_3    | directional          | S3_sizing  |        -0.382 |    0.197 |      0.579 | 0.000 |    0.000 |  0.000 | {"logreg": 5, "et": 8, "lgbm": 4, "rf": 4}            |
 | heikin_ashi_3    | directional          | S4_exit    |        -0.382 |   -0.264 |      0.118 | 0.409 |    1.000 |  0.532 | {"logreg": 8, "et": 4, "lgbm": 6, "rf": 3}            |
 | heikin_ashi_3    | directional          | S5_params  |        -0.382 |    0.050 |      0.432 | 0.044 |    1.000 |  0.089 | {"lgbm": 11, "et": 4, "logreg": 4, "mlp": 2}          |
+| mcginley_14      | adaptive_ma          | S1_filter  |        -0.007 |    0.534 |      0.541 | 0.002 |    0.225 |  0.006 | {"et": 17, "mlp": 1, "rf": 2, "lgbm": 1}              |
+| mcginley_14      | adaptive_ma          | S2_regime  |        -0.007 |   -0.026 |     -0.019 | 0.896 |    1.000 |  0.924 | {"lgbm": 3, "rf": 8, "logreg": 2, "et": 4, "mlp": 4}  |
+| mcginley_14      | adaptive_ma          | S3_sizing  |        -0.007 |    0.469 |      0.476 | 0.000 |    0.000 |  0.000 | {"et": 10, "lgbm": 2, "logreg": 5, "rf": 4}           |
+| mcginley_14      | adaptive_ma          | S4_exit    |        -0.007 |    0.227 |      0.233 | 0.100 |    1.000 |  0.161 | {"rf": 2, "et": 8, "lgbm": 5, "logreg": 5, "mlp": 1}  |
+| mcginley_14      | adaptive_ma          | S5_params  |        -0.007 |    0.245 |      0.251 | 0.005 |    0.742 |  0.017 | {"lgbm": 3, "et": 9, "rf": 4, "logreg": 5}            |

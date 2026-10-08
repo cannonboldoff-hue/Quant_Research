@@ -88,3 +88,16 @@ def test_training_labels_realised_before_validation(panel):
     # rows whose label window crosses the instrument end have no label
     last = panel.bounds[1:] - 1
     assert np.isnat(ld[last]).all()
+
+
+def test_masked_feature_blocks_keep_rows():
+    """Regression: ablation blocks mask features with NaN; the row filter must ignore fully-masked
+    columns, otherwise nothing trains and ML silently returns the baseline (ΔSharpe == 0)."""
+    from qresearch.tfml.pipeline import _rows_with_features
+    X = np.random.default_rng(0).normal(size=(500, 10)).astype(np.float32)
+    P = type("PanelStub", (), {"X": X.copy()})()
+    assert _rows_with_features(P).all()
+    P.X[:, 3:] = np.nan                      # keep 3 of 10 features
+    assert _rows_with_features(P).all()
+    P.X[:100, 0] = np.nan; P.X[:100, 1] = np.nan; P.X[:100, 2] = np.nan   # rows with no usable feature
+    assert not _rows_with_features(P)[:100].any() and _rows_with_features(P)[100:].all()

@@ -14,6 +14,8 @@ Every number below is generated from the experiment registry. See §11.*
 
 {{include:sections/08_results.md}}
 
+{{include:sections/08b_results_robustness.md}}
+
 {{include:sections/09_answer.md}}
 
 {{include:sections/10_limitations_repro.md}}

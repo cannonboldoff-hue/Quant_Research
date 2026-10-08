@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Indicator-family ablation runs (see scripts/tfml_ablation.py).
+# Indicator-family ablation (see scripts/tfml_ablation.py). The "all"-features reference runs
+# on every strategy (done once); the single-family blocks run on 15 representative strategies.
 set -u
 cd "$(dirname "$0")/.."
 PY=${PY:-.venv/Scripts/python.exe}
-J=${1:-6}
-for b in all momentum volatility trend oscillator_channel other; do
+J=${1:-5}
+if [ "$("$PY" scripts/tfml_missing.py ablation_all | wc -w)" != "0" ]; then
+  echo "### $(date) ablation all"; "$PY" scripts/tfml_ablation.py --block all --n-jobs "$J"
+fi
+for b in momentum volatility trend oscillator_channel other; do
   echo "### $(date) ablation $b"
-  "$PY" scripts/tfml_ablation.py --block "$b" --n-jobs "$J"
+  "$PY" scripts/tfml_ablation.py --block "$b" --n-jobs "$J" --subset
 done
+echo "### ablation done"

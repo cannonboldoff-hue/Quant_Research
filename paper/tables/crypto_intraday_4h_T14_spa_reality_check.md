@@ -15,7 +15,6 @@
 | hma_55_slope     |   0.944 |  0.885 | S5_params|et     |      25.000 |        1.000 |
 | frama_16         |   0.000 |  0.000 | S1_filter|logreg |      25.000 |        0.000 |
 | turtle_20_10     |   0.424 |  0.374 | S3_sizing|logreg |      25.000 |        1.000 |
-| mcginley_14      |   0.432 |  0.551 | S5_params|et     |      25.000 |        1.000 |
 | donchian_20      |   0.740 |  0.791 | S1_filter|lgbm   |      25.000 |        1.000 |
 | t3_20            |   0.666 |  0.632 | S5_params|et     |      25.000 |        1.000 |
 | keltner_20       |   0.473 |  0.449 | S3_sizing|logreg |      25.000 |        1.000 |
@@ -39,3 +38,4 @@
 | ichimoku         |   0.767 |  0.770 | S3_sizing|logreg |      25.000 |        1.000 |
 | vortex_14        |   0.411 |  0.489 | S1_filter|et     |      25.000 |        1.000 |
 | heikin_ashi_3    |   0.062 |  0.105 | S1_filter|rf     |      25.000 |        1.000 |
+| mcginley_14      |   0.433 |  0.552 | S5_params|et     |      25.000 |        1.000 |

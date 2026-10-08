@@ -24,7 +24,7 @@
 | kst              | 0.115 | S5_params|et          |         0.719 |         0.088 |      0.612 |
 | linreg_63        | 0.371 | S1_filter|rf          |         0.573 |         0.473 |      0.676 |
 | macd_12_26_9     | 0.039 | S5_params|et          |         0.776 |        -0.169 |      0.615 |
-| mcginley_14      | 0.345 | S1_filter|logreg      |         0.178 |        -0.141 |      0.236 |
+| mcginley_14      | 0.344 | S1_filter|logreg      |         0.179 |        -0.141 |      0.237 |
 | psar             | 0.103 | S1_filter|et          |         0.876 |        -0.031 |      0.744 |
 | sma_50_200       | 0.293 | S1_filter|lgbm        |         0.816 |         0.663 |      0.765 |
 | supertrend_10_3  | 0.488 | S1_filter|lgbm        |         1.007 |         0.558 |      0.896 |

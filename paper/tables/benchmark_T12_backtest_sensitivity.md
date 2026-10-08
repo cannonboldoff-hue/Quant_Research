@@ -19,12 +19,12 @@
 | next_open|cost1|unit                      | S2_regime  |          0.029 |            0.692 |            0.178 |         1 |         2 |              0.150 |
 | next_open|cost1|unit                      | S3_sizing  |          0.508 |            0.974 |            0.657 |        37 |         0 |              0.150 |
 | next_open|cost1|unit                      | S4_exit    |          0.366 |            0.949 |            0.516 |        30 |         1 |              0.150 |
-| next_open|cost1|unit                      | S5_params  |          0.094 |            0.821 |            0.244 |         3 |         2 |              0.150 |
+| next_open|cost1|unit                      | S5_params  |          0.095 |            0.821 |            0.244 |         3 |         2 |              0.150 |
 | next_open|cost3|vol_target0.1             | S1_filter  |          0.583 |            0.974 |            0.063 |        36 |         0 |             -0.521 |
 | next_open|cost3|vol_target0.1             | S2_regime  |         -0.244 |            0.026 |           -0.765 |         0 |        15 |             -0.521 |
 | next_open|cost3|vol_target0.1             | S3_sizing  |          0.357 |            0.949 |           -0.164 |        30 |         1 |             -0.521 |
 | next_open|cost3|vol_target0.1             | S4_exit    |          0.139 |            0.846 |           -0.382 |         3 |         2 |             -0.521 |
-| next_open|cost3|vol_target0.1             | S5_params  |          0.172 |            0.769 |           -0.349 |        13 |         2 |             -0.521 |
+| next_open|cost3|vol_target0.1             | S5_params  |          0.173 |            0.769 |           -0.348 |        13 |         2 |             -0.521 |
 | same_close|cost1|vol_target0.1            | S1_filter  |          0.466 |            0.974 |            0.516 |        32 |         0 |              0.050 |
 | same_close|cost1|vol_target0.1            | S2_regime  |          0.018 |            0.462 |            0.068 |         2 |         2 |              0.050 |
 | same_close|cost1|vol_target0.1            | S3_sizing  |          0.419 |            0.949 |            0.469 |        34 |         0 |              0.050 |

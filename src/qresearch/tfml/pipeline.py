@@ -166,6 +166,16 @@ def _rolling_forward_sum(P: Panel, x: np.ndarray, h: int) -> np.ndarray:
 
 
 # --------------------------------------------------------------------------- shared regime model (S2)
+def _rows_with_features(P: Panel) -> np.ndarray:
+    """Rows with >80% of the *available* features finite. Columns that are entirely NaN
+    (features deliberately removed in the indicator-family ablation) are ignored, so a masked
+    block does not exclude every row. For the normal runs every column has finite values, so
+    this equals the plain ``isfinite(X).mean(1) > 0.8`` rule used for the published results."""
+    fin = np.isfinite(P.X)
+    live = fin.any(0)
+    return fin[:, live].mean(1) > 0.8
+
+
 def regime_dataset(P: Panel, cfg: RunConfig):
     h = cfg.h_regime
     c = P.close
@@ -209,7 +219,7 @@ def fit_regime_models(P: Panel, cfg: RunConfig, log=print) -> dict:
     ld = _label_date(P, label_row)
     rng = np.random.default_rng(cfg.seed)
     stride = (P.inst_pos % (cfg.train_stride or cfg.h_bar)) == 0
-    feat_ok = np.isfinite(P.X).mean(1) > 0.8
+    feat_ok = _rows_with_features(P)
     out = {}
     dmax = P.date.max()
     for f in folds(cfg, dmax):
@@ -261,7 +271,7 @@ def run_strategy(strategy: Strategy, P: Panel, cfg: RunConfig, regime: dict | No
     dvol = P.X[:, list(_FEATS).index("vol_20")].astype(float) / np.sqrt(P.ann)
     age, opnl, prev_ret, prev_len, start_row = _trade_context(p, P.close, P.inst_start, np.nan_to_num(dvol))
     starts = ml.trade_starts(p, P.inst_start)
-    feat_ok = np.isfinite(P.X).mean(1) > 0.8
+    feat_ok = _rows_with_features(P)
 
     # 2. labels
     # S3/S4: direction of current position over next h bars, entry at next open

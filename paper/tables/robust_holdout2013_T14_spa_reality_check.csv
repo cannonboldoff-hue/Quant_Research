@@ -8,7 +8,6 @@ dema_20_50,0.0015,0.01,S3_sizing|et,25.0,0.0375
 gmma,0.0055,0.005,S3_sizing|et,25.0,0.066
 zlema_10_30,0.001,0.0035,S1_filter|et,25.0,0.027
 jma_7_21,0.0035,0.021,S1_filter|et,25.0,0.056
-mcginley_14,0.0015,0.0005,S3_sizing|et,25.0,0.0375
 kama_10,0.0015,0.001,S3_sizing|et,25.0,0.0375
 t3_20,0.0,0.0,S3_sizing|rf,25.0,0.0
 frama_16,0.0,0.0,S1_filter|et,25.0,0.0
@@ -38,3 +37,4 @@ cci_20_100,0.0105,0.008,S1_filter|et,25.0,0.066
 ichimoku,0.006,0.006,S3_sizing|et,25.0,0.066
 vortex_14,0.0005,0.0005,S3_sizing|et,25.0,0.0175
 heikin_ashi_3,0.0005,0.0035,S1_filter|et,25.0,0.0175
+mcginley_14,0.0015,0.0005,S3_sizing|et,25.0,0.0375

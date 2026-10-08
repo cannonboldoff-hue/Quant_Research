@@ -15,7 +15,6 @@ turtle_20_10,0.0005,0.0005,S3_sizing|et,25.0,0.0165
 hma_55_slope,0.001,0.0005,S3_sizing|rf,25.0,0.02
 vidya_14,0.001,0.001,S3_sizing|et,25.0,0.02
 t3_20,0.0005,0.0005,S3_sizing|et,25.0,0.0165
-mcginley_14,0.0005,0.0005,S3_sizing|et,25.0,0.0165
 frama_16,0.0,0.0,S1_filter|rf,25.0,0.0
 keltner_20,0.0005,0.0055,S3_sizing|et,25.0,0.0165
 bollinger_20_2,0.0005,0.002,S3_sizing|et,25.0,0.0165
@@ -38,3 +37,4 @@ elder_impulse,0.0,0.0,S1_filter|rf,25.0,0.0
 ichimoku,0.001,0.001,S3_sizing|et,25.0,0.02
 vortex_14,0.0015,0.002,S3_sizing|et,25.0,0.021
 heikin_ashi_3,0.0,0.0015,S3_sizing|et,25.0,0.0
+mcginley_14,0.0005,0.0005,S3_sizing|et,25.0,0.0165

@@ -1,10 +1,10 @@
 | strategy_family      | ml_stage   |   n |   mean_dSharpe |   share_improved |   mean_base_sharpe |
 |:---------------------|:-----------|----:|---------------:|-----------------:|-------------------:|
-| adaptive_ma          | S1_filter  |   6 |          0.513 |            1.000 |             -0.247 |
+| adaptive_ma          | S1_filter  |   6 |          0.514 |            1.000 |             -0.247 |
 | adaptive_ma          | S2_regime  |   6 |          0.024 |            0.667 |             -0.247 |
-| adaptive_ma          | S3_sizing  |   6 |          0.484 |            1.000 |             -0.247 |
-| adaptive_ma          | S4_exit    |   6 |          0.287 |            1.000 |             -0.247 |
-| adaptive_ma          | S5_params  |   6 |          0.249 |            1.000 |             -0.247 |
+| adaptive_ma          | S3_sizing  |   6 |          0.485 |            1.000 |             -0.247 |
+| adaptive_ma          | S4_exit    |   6 |          0.289 |            1.000 |             -0.247 |
+| adaptive_ma          | S5_params  |   6 |          0.246 |            1.000 |             -0.247 |
 | breakout             | S1_filter  |   5 |          0.508 |            1.000 |              0.053 |
 | breakout             | S2_regime  |   5 |         -0.129 |            0.200 |              0.053 |
 | breakout             | S3_sizing  |   5 |          0.478 |            1.000 |              0.053 |

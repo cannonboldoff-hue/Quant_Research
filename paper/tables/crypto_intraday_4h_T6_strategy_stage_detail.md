@@ -75,11 +75,6 @@
 | turtle_20_10     | breakout             | S3_sizing  |         0.462 |    0.710 |      0.248 | 0.171 |    1.000 |  0.528 | {"lgbm": 2, "logreg": 1, "et": 3}                    |
 | turtle_20_10     | breakout             | S4_exit    |         0.462 |    1.062 |      0.600 | 0.021 |    1.000 |  0.195 | {"lgbm": 2, "rf": 2, "et": 1, "logreg": 1}           |
 | turtle_20_10     | breakout             | S5_params  |         0.462 |    0.550 |      0.088 | 0.664 |    1.000 |  0.904 | {"lgbm": 3, "rf": 2, "et": 1}                        |
-| mcginley_14      | adaptive_ma          | S1_filter  |        -0.141 |    0.088 |      0.229 | 0.244 |    1.000 |  0.603 | {"logreg": 3, "mlp": 2, "et": 1}                     |
-| mcginley_14      | adaptive_ma          | S2_regime  |        -0.141 |   -0.225 |     -0.083 | 0.657 |    1.000 |  0.904 | {"et": 2, "mlp": 3, "lgbm": 1}                       |
-| mcginley_14      | adaptive_ma          | S3_sizing  |        -0.141 |   -0.366 |     -0.225 | 0.247 |    1.000 |  0.603 | {"lgbm": 2, "et": 2, "logreg": 2}                    |
-| mcginley_14      | adaptive_ma          | S4_exit    |        -0.141 |   -0.356 |     -0.215 | 0.344 |    1.000 |  0.670 | {"et": 2, "mlp": 1, "logreg": 2, "lgbm": 1}          |
-| mcginley_14      | adaptive_ma          | S5_params  |        -0.141 |    0.090 |      0.231 | 0.230 |    1.000 |  0.603 | {"logreg": 3, "mlp": 1, "et": 2}                     |
 | donchian_20      | breakout             | S1_filter  |         0.484 |    0.520 |      0.036 | 0.885 |    1.000 |  0.968 | {"logreg": 2, "et": 2, "rf": 1, "lgbm": 1}           |
 | donchian_20      | breakout             | S2_regime  |         0.484 |    0.234 |     -0.250 | 0.149 |    1.000 |  0.503 | {"rf": 1, "mlp": 1, "logreg": 1, "lgbm": 1, "et": 2} |
 | donchian_20      | breakout             | S3_sizing  |         0.484 |    0.393 |     -0.091 | 0.626 |    1.000 |  0.885 | {"lgbm": 2, "et": 2, "logreg": 2}                    |
@@ -195,3 +190,8 @@
 | heikin_ashi_3    | directional          | S3_sizing  |        -0.506 |   -0.508 |     -0.002 | 0.989 |    1.000 |  0.999 | {"lgbm": 2, "logreg": 1, "mlp": 1, "et": 1, "rf": 1} |
 | heikin_ashi_3    | directional          | S4_exit    |        -0.506 |   -0.309 |      0.197 | 0.334 |    1.000 |  0.670 | {"lgbm": 1, "logreg": 2, "rf": 2, "et": 1}           |
 | heikin_ashi_3    | directional          | S5_params  |        -0.506 |   -0.149 |      0.357 | 0.374 |    1.000 |  0.695 | {"rf": 1, "logreg": 3, "mlp": 1, "lgbm": 1}          |
+| mcginley_14      | adaptive_ma          | S1_filter  |        -0.141 |    0.088 |      0.230 | 0.244 |    1.000 |  0.603 | {"logreg": 3, "mlp": 2, "et": 1}                     |
+| mcginley_14      | adaptive_ma          | S2_regime  |        -0.141 |   -0.225 |     -0.083 | 0.657 |    1.000 |  0.904 | {"et": 2, "mlp": 3, "lgbm": 1}                       |
+| mcginley_14      | adaptive_ma          | S3_sizing  |        -0.141 |   -0.367 |     -0.225 | 0.246 |    1.000 |  0.603 | {"lgbm": 2, "et": 2, "logreg": 2}                    |
+| mcginley_14      | adaptive_ma          | S4_exit    |        -0.141 |   -0.358 |     -0.217 | 0.342 |    1.000 |  0.670 | {"et": 2, "mlp": 1, "logreg": 2, "lgbm": 1}          |
+| mcginley_14      | adaptive_ma          | S5_params  |        -0.141 |    0.088 |      0.230 | 0.234 |    1.000 |  0.603 | {"logreg": 3, "mlp": 1, "et": 2}                     |
