@@ -615,7 +615,7 @@ def ablation_table(runs: list[str]):
     sel = t[t.model == "selected"].pivot(index="feature_block", columns="stage", values="mean_dSharpe")
     plt = _mpl()
     fig, ax = plt.subplots(figsize=(6, 3))
-    order = [b for b in ["all", "momentum", "volatility", "trend", "oscillator_channel", "other"] if b in sel.index]
+    order = [b for b in ["all", "context_only", "momentum", "volatility", "trend", "oscillator_channel", "other"] if b in sel.index]
     sel = sel.loc[order]
     w = 0.8 / max(len(sel.columns), 1)
     ax.axhline(0, color=INK2, lw=1)
@@ -625,7 +625,7 @@ def ablation_table(runs: list[str]):
     ax.set_xticks(range(len(sel)), sel.index, rotation=15)
     ax.set_ylabel("mean ΔSharpe (selected model)")
     ax.set_title("Which indicator families carry the ML improvement? (ablation protocol)")
-    ax.legend(frameon=False, fontsize=7)
+    ax.legend(frameon=False, fontsize=7, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.28))
     fig.savefig(FIG / "F7_feature_ablation.png")
     plt.close(fig)
 
@@ -662,8 +662,17 @@ def null_table(runs: list[str]):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", nargs="*")
+    ap.add_argument("--ablation-only", action="store_true",
+                    help="refresh only the ablation table/figure/summary section (keeps the rest of results_summary.json)")
     args = ap.parse_args()
     runs = args.run or R.read("select distinct run_id from experiments")["run_id"].tolist()
+    if args.ablation_only:
+        SUMMARY.update(json.loads((PAPER / "results_summary.json").read_text(encoding="utf-8")))
+        ablation_table(runs)
+        (PAPER / "results_summary.json").write_text(
+            json.dumps(SUMMARY, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)), encoding="utf-8")
+        print("ablation refreshed")
+        return
     data_tables()
     method_tables()
     for run in [r for r in runs if not r.startswith(("ablation_", "null_"))]:

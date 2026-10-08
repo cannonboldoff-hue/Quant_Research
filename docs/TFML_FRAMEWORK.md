@@ -100,3 +100,27 @@ balance.
 `result_path` points to `results/tfml/<run>/<strategy>.parquet`. That file holds the daily
 OOS portfolio return series of the baseline and every stage × model, plus the
 market-group series of the baseline and the selected models.
+
+## Experiment scripts (in the order used for the paper)
+
+| Script | Purpose |
+|---|---|
+| `scripts/tfml_fetch_data.py` | download + clean the universe, write `manifest.json` |
+| `scripts/tfml_run.py --config configs/tfml/<run>.yaml` | one run: baselines + 5 ML stages x 5 models, walk-forward, evaluation, registry rows |
+| `scripts/tfml_run_all.sh` / `tfml_resume.sh` | benchmark + 5 robustness runs (`resume` runs only strategies missing from the registry) |
+| `scripts/tfml_null_test.py` | full pipeline on synthetic random-walk markets (leakage / false-discovery screen) |
+| `scripts/tfml_placebo.py` | same decision rules with random predictions (isolates what the models learn) |
+| `scripts/tfml_ablation.py` / `tfml_ablation_all.sh` | feature-family ablation; `all` on 39 strategies, single-family and `context_only` blocks on 15 |
+| `scripts/tfml_rerun_strategy.sh <id>` | re-run one strategy in every run (e.g. after an indicator fix) |
+| `scripts/tfml_validate_data.py` | cross-source data validation (Yahoo vs Binance, index vs ETF vs futures) |
+| `scripts/tfml_report.py` | all tables/figures/`results_summary.json`; `--ablation-only` refreshes just the ablation |
+| `paper/build_paper.py` | renders `paper.md`/`paper.html`, every number injected from `results_summary.json` |
+
+## Changes made after the main runs (for the record)
+
+- **McGinley Dynamic** diverged after large price drops (`ZeroDivisionError` on WIPRO.NS,
+  `inf` on crypto). The step is now capped; `mcginley_14` was re-run in every run, and its
+  placebo too. No other strategy uses this indicator.
+- **Row filter in the pipeline** (`_rows_with_features`) ignores fully masked feature
+  columns. It is identical to the original rule for all non-ablation runs (verified on the
+  full benchmark panel) and was needed because the first ablation silently trained nothing.

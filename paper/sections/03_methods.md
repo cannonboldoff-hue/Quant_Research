@@ -62,6 +62,13 @@ against the same rule-based baseline**, so its incremental effect is identified:
 | S4 exit | entry/exit decisions | same as S3 | exit an open trade when the probability drops below the threshold; re-enter only on the next rule signal |
 | S5 params | parameter adaptation | which of the slow/base/fast variants has the best net return over the next 21 bars (3-class) | each month, trade the variant with the highest predicted probability |
 
+**Model inputs.** All stages receive the 56 indicator features at the decision bar. The
+rule-specific stages (S1, S3, S4) additionally receive six **trade-state features**: the
+current position's sign and size, log trade age, volatility-scaled open P&L, and the
+volatility-scaled result and log length of the previous completed trade. S5 receives the
+three variants' current positions instead. The regime model (S2) receives indicators only.
+§8.12 shows the trade-state features, not the indicators, carry the improvement.
+
 Bar-level model outputs (S2–S4) go through a causal 5-bar EMA before any decision, a
 setting fixed before the study. Without it, day-to-day prediction noise churned positions
 and multiplied turnover. The intervention intensity (S1/S2: 20/35/50% quantile; S4:

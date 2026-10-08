@@ -1,12 +1,48 @@
 # Does Machine Learning Improve Trend Following? A Stage-by-Stage, Multi-Asset, Walk-Forward Evaluation of 39 Rule-Based Strategies
 
 *Research repository: `qresearch.tfml`. Benchmark run code hash
-`c5eca8e4b21125d6`, dataset hash `db291a67e4f96983`.
+`05ed4f98a50abe35`, dataset hash `db291a67e4f96983`.
 Every number below is generated from the experiment registry. See §11.*
 
 ## Abstract
 
-PLACEHOLDER
+We measure how much machine learning improves 39 established trend-following rules
+(moving-average crossovers, channel breakouts, volatility stops, time-series momentum,
+oscillator and directional systems), and when the improvement is statistically robust.
+ML is inserted at five separate pipeline stages (trade filtering, regime gating, position
+sizing, exits, parameter adaptation), with five model families per stage. Models and
+decision thresholds are chosen on a validation block that precedes each test year, in a
+purged annual walk-forward design.
+
+The test bed is 174 instruments (equity indices,
+futures, FX, crypto, ETFs), 2006-01-02..2026-10-06 out of sample, with next-open
+execution, asset-class transaction costs and volatility-targeted sizing.
+
+Rule-based baselines have a mean Sharpe ratio of 0.01.
+ML trade filtering and ML position sizing raise it by
++0.47 and
++0.44. The improvements are
+significant for 31 and
+33 of 39 strategies after
+Benjamini–Hochberg correction. ML exits add +0.28,
+parameter adaptation +0.16, and a
+strategy-agnostic regime gate adds nothing.
+
+The gains are not an artefact of trading less: a placebo with random predictions is
+negative or null, and a random-walk null test shows no broad improvement. The S1 and S3 gains hold across a
+hold-out split, a rolling window, every 5-year sub-period and 0×–3× costs (at 3× costs
+the regime gate becomes harmful). They concentrate in
+weak rules, and are absent for G10 FX and for intraday (1-hour, 4-hour) position sizing.
+
+An ablation shows the benefit does **not** come from the technical indicators. A model given
+only volatility and the state of the open trade matches one given 56 indicators. The
+improvement is statistically robust, but most ML-enhanced rules remain only marginally
+profitable on their own after costs.
+
+Every figure is generated from a reproducible experiment registry linking strategy,
+indicators, market, instrument, dataset, ML stage, model, validation and backtest to its
+result. The framework is modular, and all code, data pipelines and tests are in the
+repository.
 
 
 ## 1. Introduction
@@ -175,6 +211,13 @@ against the same rule-based baseline**, so its incremental effect is identified:
 | S4 exit | entry/exit decisions | same as S3 | exit an open trade when the probability drops below the threshold; re-enter only on the next rule signal |
 | S5 params | parameter adaptation | which of the slow/base/fast variants has the best net return over the next 21 bars (3-class) | each month, trade the variant with the highest predicted probability |
 
+**Model inputs.** All stages receive the 56 indicator features at the decision bar. The
+rule-specific stages (S1, S3, S4) additionally receive six **trade-state features**: the
+current position's sign and size, log trade age, volatility-scaled open P&L, and the
+volatility-scaled result and log length of the previous completed trade. S5 receives the
+three variants' current positions instead. The regime model (S2) receives indicators only.
+§8.12 shows the trade-state features, not the indicators, carry the improvement.
+
 Bar-level model outputs (S2–S4) go through a causal 5-bar EMA before any decision, a
 setting fixed before the study. Without it, day-to-day prediction noise churned positions
 and multiplied turnover. The intervention intensity (S1/S2: 20/35/50% quantile; S4:
@@ -270,7 +313,11 @@ long-only or monthly rules: `faber_10m` reaches
 0.85. The worst is `frama_16`
 at -0.83. This matches the well-documented weak
 decade for trend following after 2009. Fast crossovers and adaptive moving averages pay
-substantial costs for whipsaw trades. Full metrics (CAGR, total return, volatility,
+substantial costs for whipsaw trades. Each instrument is scaled to 10% volatility, but the
+equal-capital portfolio of 174 weakly correlated instruments has a realised volatility of
+only about 2–3% a year (Table 7). CAGRs are therefore small in absolute terms and scale
+linearly with any leverage applied; Sharpe, Sortino and Calmar ratios are the comparable
+quantities. Full metrics (CAGR, total return, volatility,
 Sharpe, Sortino, Calmar, maximum drawdown, win rate, profit factor, turnover, cost drag,
 exposure, stability) are in Appendix C.
 
@@ -282,7 +329,7 @@ exposure, stability) are in Appendix C.
 | S2_regime |             39 |         -0.007 |           -0.006 |            0.462 |             1 |              0 |            1 |            0 |          0.064 |            -4.357 |         0.749 |
 | S3_sizing |             39 |          0.444 |            0.481 |            0.974 |            35 |             16 |           33 |            0 |          0.050 |             6.755 |         0.000 |
 | S4_exit   |             39 |          0.282 |            0.296 |            0.949 |            21 |              1 |           15 |            1 |          0.073 |            -6.304 |         0.000 |
-| S5_params |             39 |          0.164 |            0.165 |            0.846 |             7 |              0 |            4 |            0 |          0.038 |            -2.809 |         0.000 |
+| S5_params |             39 |          0.164 |            0.165 |            0.846 |             7 |              0 |            4 |            0 |          0.038 |            -2.824 |         0.000 |
 
 *Table 5. ΔSharpe of the validation-selected model per stage, across 39 strategies.*
 `sig_*` counts strategies with a significant improvement (two-sided paired block
@@ -361,7 +408,7 @@ not raw CAGRs, are the meaningful comparison.
 | S2_regime |  0.000 |          0.005 |     0.011 |    0.025 |     0.034 |    0.006 |         -0.038 |           0.524 |         -0.128 |      0.012 |        0.934 |  -0.267 |   0.295 |
 | S3_sizing |  0.014 |          0.347 |     0.026 |    0.572 |     0.781 |    0.235 |         -0.062 |           0.810 |          0.874 |      0.559 |        0.001 |   0.257 |   0.870 |
 | S4_exit   |  0.005 |          0.112 |     0.013 |    0.391 |     0.537 |    0.111 |         -0.046 |           0.714 |          0.680 |      0.378 |        0.008 |   0.095 |   0.665 |
-| S5_params |  0.005 |          0.103 |     0.021 |    0.237 |     0.329 |    0.088 |         -0.054 |           0.571 |          0.430 |      0.224 |        0.012 |   0.057 |   0.404 |
+| S5_params |  0.005 |          0.103 |     0.021 |    0.237 |     0.329 |    0.088 |         -0.054 |           0.571 |          0.428 |      0.224 |        0.012 |   0.056 |   0.404 |
 
 ![Figure 3. Cumulative OOS log return of the 39-strategy composite: rule-based vs each ML stage.](figures/benchmark_F3_composite_equity.png)
 
@@ -406,10 +453,10 @@ portfolio-level one.
 | S4_exit    | logreg     |          0.256 |            0.949 |        24 |         1 |              144 |             0.176 |
 | S4_exit    | mlp        |          0.186 |            0.872 |        15 |         0 |              124 |             0.151 |
 | S4_exit    | rf         |          0.338 |            0.949 |        31 |         1 |              134 |             0.164 |
-| S5_params  | et         |          0.171 |            0.923 |         7 |         0 |              161 |             0.197 |
-| S5_params  | lgbm       |          0.194 |            0.949 |        11 |         0 |              250 |             0.305 |
-| S5_params  | logreg     |          0.170 |            0.949 |         7 |         0 |              145 |             0.177 |
-| S5_params  | mlp        |          0.153 |            0.821 |         8 |         0 |              148 |             0.181 |
+| S5_params  | et         |          0.171 |            0.923 |         7 |         0 |              164 |             0.200 |
+| S5_params  | lgbm       |          0.194 |            0.949 |        11 |         0 |              247 |             0.302 |
+| S5_params  | logreg     |          0.170 |            0.949 |         7 |         0 |              146 |             0.178 |
+| S5_params  | mlp        |          0.153 |            0.821 |         8 |         0 |              147 |             0.179 |
 | S5_params  | rf         |          0.184 |            0.897 |         9 |         0 |              115 |             0.140 |
 
 *Table 8. OOS ΔSharpe of every model at every stage, and how often validation selected it
@@ -456,7 +503,7 @@ No fold ever uses its own test year.
 | crypto       | S2_regime  |              0.916 |         -0.276 |            0.026 |            0 |            0 |
 | crypto       | S3_sizing  |              0.916 |          0.399 |            0.974 |           32 |            0 |
 | crypto       | S4_exit    |              0.916 |          0.129 |            0.846 |            0 |            0 |
-| crypto       | S5_params  |              0.916 |          0.037 |            0.538 |            0 |            0 |
+| crypto       | S5_params  |              0.916 |          0.038 |            0.538 |            0 |            0 |
 | equity_index | S1_filter  |              0.098 |          0.346 |            0.923 |            6 |            0 |
 | equity_index | S2_regime  |              0.098 |          0.108 |            0.821 |            0 |            0 |
 | equity_index | S3_sizing  |              0.098 |          0.433 |            1.000 |           28 |            0 |
@@ -481,12 +528,12 @@ No fold ever uses its own test year.
 | fx_em        | S2_regime  |             -0.096 |         -0.136 |            0.154 |            0 |            0 |
 | fx_em        | S3_sizing  |             -0.096 |          0.255 |            1.000 |           19 |            0 |
 | fx_em        | S4_exit    |             -0.096 |          0.116 |            0.846 |            1 |            0 |
-| fx_em        | S5_params  |             -0.096 |          0.068 |            0.692 |            1 |            0 |
+| fx_em        | S5_params  |             -0.096 |          0.069 |            0.692 |            1 |            0 |
 | fx_major     | S1_filter  |             -0.080 |         -0.003 |            0.487 |            0 |            0 |
 | fx_major     | S2_regime  |             -0.080 |          0.013 |            0.538 |            0 |            0 |
 | fx_major     | S3_sizing  |             -0.080 |         -0.067 |            0.051 |            0 |            0 |
 | fx_major     | S4_exit    |             -0.080 |         -0.070 |            0.256 |            0 |            0 |
-| fx_major     | S5_params  |             -0.080 |          0.019 |            0.590 |            0 |            0 |
+| fx_major     | S5_params  |             -0.080 |          0.021 |            0.590 |            0 |            0 |
 
 *Table 9. ΔSharpe by universe group (39 strategies each; BH within stage).*
 
@@ -521,23 +568,23 @@ Sharpe from ML.
 | ml_stage=S2_regime                   | -0.093 | 0.008 | -11.098 | 0.000 |
 | ml_stage=S3_sizing                   | -0.010 | 0.006 |  -1.812 | 0.070 |
 | ml_stage=S4_exit                     | -0.035 | 0.005 |  -7.630 | 0.000 |
-| ml_stage=S5_params                   | -0.075 | 0.005 | -14.646 | 0.000 |
-| ml_model=et                          |  0.025 | 0.003 |   7.921 | 0.000 |
-| ml_model=lgbm                        | -0.000 | 0.003 |  -0.157 | 0.875 |
-| ml_model=mlp                         | -0.026 | 0.003 |  -8.378 | 0.000 |
-| ml_model=rf                          |  0.015 | 0.003 |   4.904 | 0.000 |
-| strategy_family=adaptive_ma          | -0.003 | 0.003 |  -1.213 | 0.225 |
+| ml_stage=S5_params                   | -0.075 | 0.005 | -14.655 | 0.000 |
+| ml_model=et                          |  0.025 | 0.003 |   7.916 | 0.000 |
+| ml_model=lgbm                        | -0.000 | 0.003 |  -0.163 | 0.871 |
+| ml_model=mlp                         | -0.026 | 0.003 |  -8.388 | 0.000 |
+| ml_model=rf                          |  0.015 | 0.003 |   4.900 | 0.000 |
+| strategy_family=adaptive_ma          | -0.003 | 0.003 |  -1.204 | 0.228 |
 | strategy_family=breakout             |  0.001 | 0.003 |   0.484 | 0.628 |
 | strategy_family=directional          | -0.009 | 0.002 |  -3.879 | 0.000 |
 | strategy_family=oscillator_trend     | -0.003 | 0.003 |  -1.269 | 0.204 |
 | strategy_family=price_vs_ma          | -0.053 | 0.005 |  -9.729 | 0.000 |
-| strategy_family=time_series_momentum | -0.034 | 0.004 |  -7.859 | 0.000 |
+| strategy_family=time_series_momentum | -0.034 | 0.004 |  -7.860 | 0.000 |
 | strategy_family=volatility_stop      | -0.005 | 0.002 |  -2.028 | 0.043 |
-| asset_class=crypto                   |  0.009 | 0.020 |   0.441 | 0.659 |
-| asset_class=etf                      | -0.019 | 0.014 |  -1.386 | 0.166 |
-| asset_class=futures                  | -0.085 | 0.014 |  -5.950 | 0.000 |
-| asset_class=fx                       | -0.120 | 0.011 | -10.629 | 0.000 |
-| base_sharpe                          | -0.193 | 0.016 | -11.742 | 0.000 |
+| asset_class=crypto                   |  0.009 | 0.020 |   0.442 | 0.659 |
+| asset_class=etf                      | -0.019 | 0.014 |  -1.387 | 0.165 |
+| asset_class=futures                  | -0.085 | 0.014 |  -5.949 | 0.000 |
+| asset_class=fx                       | -0.120 | 0.011 | -10.628 | 0.000 |
+| base_sharpe                          | -0.193 | 0.016 | -11.744 | 0.000 |
 
 *Table 15. Instrument-level ΔSharpe (all stages × models, n =
 169,650) regressed on design factors; standard errors
@@ -621,7 +668,7 @@ whether the benefit survives a placebo with the same turnover reduction.
 | 2011-2015 | S2_regime  |             -0.324 |          0.190 |            0.795 |         2 |         2 |
 | 2011-2015 | S3_sizing  |             -0.324 |          0.213 |            0.974 |         0 |         0 |
 | 2011-2015 | S4_exit    |             -0.324 |          0.150 |            0.795 |         1 |         0 |
-| 2011-2015 | S5_params  |             -0.324 |          0.141 |            0.667 |         2 |         1 |
+| 2011-2015 | S5_params  |             -0.324 |          0.140 |            0.667 |         2 |         1 |
 | 2016-2020 | S1_filter  |              0.094 |          0.409 |            0.923 |         5 |         0 |
 | 2016-2020 | S2_regime  |              0.094 |         -0.265 |            0.179 |         0 |         1 |
 | 2016-2020 | S3_sizing  |              0.094 |          0.456 |            0.974 |         8 |         0 |
@@ -667,12 +714,12 @@ individually significant for most strategies.
 | next_open|cost1|unit                      | S2_regime  |              0.150 |            0.178 |          0.029 |            0.692 |         1 |         2 |
 | next_open|cost1|unit                      | S3_sizing  |              0.150 |            0.657 |          0.508 |            0.974 |        37 |         0 |
 | next_open|cost1|unit                      | S4_exit    |              0.150 |            0.516 |          0.366 |            0.949 |        30 |         1 |
-| next_open|cost1|unit                      | S5_params  |              0.150 |            0.244 |          0.094 |            0.821 |         3 |         2 |
+| next_open|cost1|unit                      | S5_params  |              0.150 |            0.244 |          0.095 |            0.821 |         3 |         2 |
 | next_open|cost3|vol_target0.1             | S1_filter  |             -0.521 |            0.063 |          0.583 |            0.974 |        36 |         0 |
 | next_open|cost3|vol_target0.1             | S2_regime  |             -0.521 |           -0.765 |         -0.244 |            0.026 |         0 |        15 |
 | next_open|cost3|vol_target0.1             | S3_sizing  |             -0.521 |           -0.164 |          0.357 |            0.949 |        30 |         1 |
 | next_open|cost3|vol_target0.1             | S4_exit    |             -0.521 |           -0.382 |          0.139 |            0.846 |         3 |         2 |
-| next_open|cost3|vol_target0.1             | S5_params  |             -0.521 |           -0.349 |          0.172 |            0.769 |        13 |         2 |
+| next_open|cost3|vol_target0.1             | S5_params  |             -0.521 |           -0.348 |          0.173 |            0.769 |        13 |         2 |
 | same_close|cost1|vol_target0.1            | S1_filter  |              0.050 |            0.516 |          0.466 |            0.974 |        32 |         0 |
 | same_close|cost1|vol_target0.1            | S2_regime  |              0.050 |            0.068 |          0.018 |            0.462 |         2 |         2 |
 | same_close|cost1|vol_target0.1            | S3_sizing  |              0.050 |            0.469 |          0.419 |            0.949 |        34 |         0 |
@@ -723,9 +770,380 @@ convincingly profitable after costs over 2006–2026. The improvement is signifi
 resulting standalone strategy usually is not.
 
 
-## 9. Answer
+### 8.9 Is it the information in the models, or just the intervention? (placebo control)
 
-PLACEHOLDER
+Cutting trades or resizing positions can change a Sharpe ratio even with no information
+at all. To isolate what the models *learn*, each decision rule is re-run with the same
+validation-chosen intensity but with **uniform random numbers in place of model
+predictions** (20 draws per strategy × stage).
+
+| stage     |   n |   mean_d_ml |   mean_d_placebo |   mean_ml_minus_placebo |   share_ml_beats_placebo_mean |   n_ml_above_placebo_p95 |   n_bh |
+|:----------|----:|------------:|-----------------:|------------------------:|------------------------------:|-------------------------:|-------:|
+| S1_filter |  39 |       0.470 |           -0.023 |                   0.493 |                         1.000 |                       37 |     37 |
+| S2_regime |  39 |      -0.007 |           -0.662 |                   0.656 |                         1.000 |                       39 |     39 |
+| S3_sizing |  39 |       0.444 |           -0.563 |                   1.007 |                         1.000 |                       39 |     39 |
+| S4_exit   |  39 |       0.282 |           -0.322 |                   0.605 |                         0.974 |                       38 |     38 |
+| S5_params |  39 |       0.164 |           -0.059 |                   0.223 |                         0.923 |                       33 |     33 |
+
+*Table 19. ML ΔSharpe vs random-prediction placebo ΔSharpe (benchmark, selected model).
+`n_ml_above_placebo_p95` counts strategies whose ML ΔSharpe exceeds the 95th percentile of
+their own placebo draws; `n_bh` the same after Benjamini–Hochberg adjustment.*
+
+The mechanical effect of intervening is **negative or null**, so the ML gains are not an
+artefact of trading less:
+
+- At S1 the placebo ΔSharpe is -0.02
+  against +0.47 for ML. ML beats its
+  placebo's 95th percentile for 37
+  of 39 strategies.
+- At S3 random sizing is strongly harmful
+  (-0.56), whereas model-based
+  sizing helps (+0.44).
+- S4 and S5 show the same pattern.
+
+Even for S2, where the *selected* ΔSharpe is about zero, the placebo is clearly negative
+(-0.66). Gating on random
+numbers removes profitable exposure, so the regime models carry information, but too
+little to improve on the rule.
+
+### 8.10 Leakage and false-discovery check on random-walk markets
+
+If any component leaked future information, ML would "improve" rules even on data with
+nothing to predict. We ran the whole benchmark pipeline unchanged on
+a panel of 60 **synthetic random-walk instruments** with
+8 strategies (GARCH-t returns, zero predictability, same costs).
+
+| run             | stage     |   n_strategies |   mean_base_sharpe |   mean_dSharpe_selected |   mean_dSharpe_all_models |   share_improved |   sig_pos_raw |   sig_neg_raw |   instrument_tests |   instrument_false_pos_rate |   mean_dSharpe_cost0 |   mean_dSharpe_cost3 |
+|:----------------|:----------|---------------:|-------------------:|------------------------:|--------------------------:|-----------------:|--------------:|--------------:|-------------------:|----------------------------:|---------------------:|---------------------:|
+| null_randomwalk | S1_filter |              8 |             -0.374 |                   0.111 |                     0.103 |            0.500 |             2 |             0 |                480 |                       0.025 |               -0.007 |                0.347 |
+| null_randomwalk | S2_regime |              8 |             -0.374 |                  -0.201 |                    -0.236 |            0.000 |             0 |             2 |                480 |                       0.017 |                0.026 |               -0.654 |
+| null_randomwalk | S3_sizing |              8 |             -0.374 |                  -0.334 |                    -0.351 |            0.000 |             0 |             7 |                480 |                       0.010 |               -0.029 |               -0.944 |
+| null_randomwalk | S4_exit   |              8 |             -0.374 |                   0.036 |                    -0.015 |            0.625 |             0 |             0 |                480 |                       0.029 |                0.060 |               -0.011 |
+| null_randomwalk | S5_params |              8 |             -0.374 |                   0.066 |                     0.033 |            0.750 |             0 |             0 |                480 |                       0.029 |                0.046 |                0.108 |
+
+*Table 21. Null test: no stage produces broad improvements.*
+
+- No stage shows broad, significant improvement: ΔSharpe is
+  +0.11 (S1),
+  -0.20 (S2),
+  -0.33 (S3),
+  +0.04 (S4),
+  +0.07 (S5). These are small and
+  mixed in sign, in contrast to the +0.16 to +0.47 gains on real data (S1–S5).
+- The instrument-level false-positive rate (significantly positive at 5%) is
+  0.025 at S1 and
+  0.010 at S3.
+- What remains at S1 is cost avoidance, not prediction. With zero costs S1's ΔSharpe is
+  -0.01, and it rises to
+  +0.35 at 3× costs: skipping trades
+  saves money even when nothing is predictable. Part of S1's benefit on real data is
+  therefore this mechanical saving, which is why §8.9's placebo (which also skips trades,
+  at random) is the cleaner test of what the models learn.
+- On noise, model-based **sizing and regime gating hurt**: S3
+  -0.33 (significantly negative for
+  7 of 8
+  strategies) and S2 -0.20. Models fitted
+  to noise produce confident but meaningless position sizes. The positive S3 result on real
+  markets is therefore evidence of genuine structure, not of a leak.
+
+This is a screen against gross leakage, not a proof of its absence. It covers 8 strategies,
+and leakage that required real market structure to bite would not show up here.
+
+### 8.11 Validation design, frequency and survivorship
+
+| run                  | stage     |   n_strategies |   mean_base_sharpe |   mean_dSharpe |   share_improved |   sig_pos_bh |   sig_neg_bh |
+|:---------------------|:----------|---------------:|-------------------:|---------------:|-----------------:|-------------:|-------------:|
+| benchmark            | S1_filter |             39 |              0.007 |          0.470 |            0.974 |           31 |            0 |
+| benchmark            | S2_regime |             39 |              0.007 |         -0.007 |            0.462 |            1 |            0 |
+| benchmark            | S3_sizing |             39 |              0.007 |          0.444 |            0.974 |           33 |            0 |
+| benchmark            | S4_exit   |             39 |              0.007 |          0.282 |            0.949 |           15 |            1 |
+| benchmark            | S5_params |             39 |              0.007 |          0.164 |            0.846 |            4 |            0 |
+| robust_holdout2013   | S1_filter |             39 |             -0.080 |          0.620 |            0.974 |           32 |            0 |
+| robust_holdout2013   | S2_regime |             39 |             -0.080 |          0.124 |            0.769 |            0 |            2 |
+| robust_holdout2013   | S3_sizing |             39 |             -0.080 |          0.393 |            0.949 |           20 |            0 |
+| robust_holdout2013   | S4_exit   |             39 |             -0.080 |          0.301 |            0.949 |           16 |            1 |
+| robust_holdout2013   | S5_params |             39 |             -0.080 |          0.185 |            0.846 |            2 |            0 |
+| crypto_intraday_4h   | S1_filter |             39 |              0.166 |          0.348 |            0.821 |            6 |            0 |
+| crypto_intraday_4h   | S2_regime |             39 |              0.166 |         -0.075 |            0.282 |            0 |            2 |
+| crypto_intraday_4h   | S3_sizing |             39 |              0.166 |         -0.090 |            0.410 |            0 |            0 |
+| crypto_intraday_4h   | S4_exit   |             39 |              0.166 |          0.050 |            0.615 |            0 |            0 |
+| crypto_intraday_4h   | S5_params |             39 |              0.166 |          0.177 |            0.641 |            2 |            0 |
+| crypto_intraday_1h   | S1_filter |             39 |             -2.517 |          1.152 |            0.923 |           32 |            0 |
+| crypto_intraday_1h   | S2_regime |             39 |             -2.517 |         -0.595 |            0.077 |            2 |           32 |
+| crypto_intraday_1h   | S3_sizing |             39 |             -2.517 |         -0.469 |            0.179 |            2 |           21 |
+| crypto_intraday_1h   | S4_exit   |             39 |             -2.517 |          0.044 |            0.590 |            1 |            2 |
+| crypto_intraday_1h   | S5_params |             39 |             -2.517 |          0.913 |            0.769 |           22 |            1 |
+| robust_single_stocks | S1_filter |             39 |             -0.053 |          0.952 |            0.974 |           37 |            0 |
+| robust_single_stocks | S2_regime |             39 |             -0.053 |          0.094 |            0.667 |            5 |            1 |
+| robust_single_stocks | S3_sizing |             39 |             -0.053 |          0.805 |            0.949 |           37 |            0 |
+| robust_single_stocks | S4_exit   |             39 |             -0.053 |          0.703 |            0.949 |           34 |            1 |
+| robust_single_stocks | S5_params |             39 |             -0.053 |          0.339 |            1.000 |           26 |            0 |
+| robust_rolling10y    | S1_filter |             39 |              0.007 |          0.442 |            0.974 |           30 |            0 |
+| robust_rolling10y    | S2_regime |             39 |              0.007 |         -0.046 |            0.385 |            0 |            0 |
+| robust_rolling10y    | S3_sizing |             39 |              0.007 |          0.425 |            0.949 |           33 |            0 |
+| robust_rolling10y    | S4_exit   |             39 |              0.007 |          0.309 |            0.949 |           23 |            1 |
+| robust_rolling10y    | S5_params |             39 |              0.007 |          0.145 |            0.846 |            3 |            0 |
+
+*Table 18. The same experiment under alternative validation designs and universes
+(selected model, BH within run).*
+
+- **Rolling 10-year training window** (`robust_rolling10y`): the pattern is
+  +0.44 (S1) and
+  +0.42 (S3).
+- **Single 2013 hold-out, no retraining** (`robust_holdout2013`): S1
+  +0.62, S3
+  +0.39.
+- **Crypto, 4-hour bars**: S1 +0.35,
+  S3 -0.09.
+- **Crypto, 1-hour bars**: S1 +1.15,
+  S3 -0.47.
+- **Survivorship-biased single stocks** (current S&P 100 / NIFTY 50 members): S1
+  +0.95, S3
+  +0.80, S4
+  +0.70: the largest
+  gains of any run, from a mean baseline Sharpe of
+  -0.05. This universe is biased by
+  construction (the stocks are present *because* they survived), so these larger gains are
+  an upper bound that does not generalise, and they are excluded from the headline
+  conclusions.
+
+**What is robust.** In every *daily* design (benchmark, 2013 hold-out, rolling window, and
+the biased stock universe), S1 and S3 have a mean ΔSharpe of at least
++0.39. They improve at
+least 94.9% of the strategies,
+and are significant for 20 to 37 strategies after BH adjustment (Table 18). S2 never helps
+materially. S5 is small but positive.
+
+**What is not robust: frequency.** At intraday crypto frequencies the picture changes:
+
+- At 4-hour bars S3 sizing no longer helps
+  (-0.09). S1
+  survives (+0.35, significant
+  for 6 strategies after BH). S5 is
+  positive on average (+0.18) but
+  significant for only 2.
+- At 1-hour bars every baseline loses heavily after costs (mean Sharpe
+  -2.52). S1 and S5 improve them
+  (+1.15 and
+  +0.91), while S2 and S3
+  make them *worse*: S3 is significantly negative for
+  21 strategies after BH. The S1
+  gain here is mostly avoided trading cost. Almost all ML variants remain unprofitable
+  after costs (only 79 of the 1,209 stage × model × strategy configurations have a positive
+  Sharpe, against 4 of 39 baselines; best 0.84, a long-only rule with ML exits).
+
+The improvement is therefore robust across validation design, time period and (daily) asset
+class, but **not** across sampling frequency. The sizing effect in particular appears
+specific to daily bars.
+
+### 8.12 Which indicators carry the improvement? (feature ablation)
+
+Does the ML gain come from the technical indicators? We re-ran stages S1, S3 and S4 with
+the feature set restricted to one indicator family at a time, and to **no indicator at
+all** (`context_only`). Two models (logistic regression, LightGBM) and retraining every 3
+years give a lighter protocol than the benchmark, so blocks are compared with each other
+and with the `all` reference under that same protocol, on the
+15 representative strategies that every block ran (all 8
+strategy families).
+
+What every block always sees: `vol_20` (needed to scale the trade-state features) and the
+**trade-state features**: current position and size, trade age, volatility-scaled open P&L,
+and the volatility-scaled result and length of the previous trade. These are causal
+functions of price and of the rule's own signals, but they are not technical indicators.
+
+| feature_block      | stage     | model    |   mean_dSharpe |   share_improved |   sig_pos |
+|:-------------------|:----------|:---------|---------------:|-----------------:|----------:|
+| all                | S1_filter | lgbm     |          0.442 |            1.000 |        13 |
+| all                | S1_filter | logreg   |          0.411 |            0.933 |        13 |
+| all                | S1_filter | selected |          0.430 |            0.933 |        13 |
+| all                | S3_sizing | lgbm     |          0.394 |            1.000 |        13 |
+| all                | S3_sizing | logreg   |          0.331 |            0.933 |        12 |
+| all                | S3_sizing | selected |          0.369 |            0.933 |        12 |
+| all                | S4_exit   | lgbm     |          0.304 |            0.933 |        10 |
+| all                | S4_exit   | logreg   |          0.261 |            0.933 |         8 |
+| all                | S4_exit   | selected |          0.276 |            0.933 |         9 |
+| momentum           | S1_filter | lgbm     |          0.395 |            0.933 |        13 |
+| momentum           | S1_filter | logreg   |          0.511 |            0.933 |        14 |
+| momentum           | S1_filter | selected |          0.477 |            0.933 |        14 |
+| momentum           | S3_sizing | lgbm     |          0.399 |            0.933 |        13 |
+| momentum           | S3_sizing | logreg   |          0.367 |            0.933 |        13 |
+| momentum           | S3_sizing | selected |          0.378 |            0.933 |        13 |
+| momentum           | S4_exit   | lgbm     |          0.270 |            0.933 |        10 |
+| momentum           | S4_exit   | logreg   |          0.249 |            0.933 |         7 |
+| momentum           | S4_exit   | selected |          0.263 |            0.933 |         9 |
+| volatility         | S1_filter | lgbm     |          0.380 |            1.000 |        13 |
+| volatility         | S1_filter | logreg   |          0.433 |            0.933 |        11 |
+| volatility         | S1_filter | selected |          0.455 |            1.000 |        13 |
+| volatility         | S3_sizing | lgbm     |          0.300 |            0.933 |        12 |
+| volatility         | S3_sizing | logreg   |          0.371 |            0.933 |        12 |
+| volatility         | S3_sizing | selected |          0.353 |            0.933 |        12 |
+| volatility         | S4_exit   | lgbm     |          0.230 |            0.933 |         6 |
+| volatility         | S4_exit   | logreg   |          0.265 |            0.933 |         7 |
+| volatility         | S4_exit   | selected |          0.254 |            0.933 |         6 |
+| trend              | S1_filter | lgbm     |          0.429 |            1.000 |        13 |
+| trend              | S1_filter | logreg   |          0.479 |            1.000 |        14 |
+| trend              | S1_filter | selected |          0.473 |            1.000 |        14 |
+| trend              | S3_sizing | lgbm     |          0.407 |            1.000 |        13 |
+| trend              | S3_sizing | logreg   |          0.357 |            0.933 |        12 |
+| trend              | S3_sizing | selected |          0.395 |            1.000 |        13 |
+| trend              | S4_exit   | lgbm     |          0.310 |            0.933 |         9 |
+| trend              | S4_exit   | logreg   |          0.266 |            0.933 |         8 |
+| trend              | S4_exit   | selected |          0.289 |            0.933 |         9 |
+| oscillator_channel | S1_filter | lgbm     |          0.391 |            1.000 |        13 |
+| oscillator_channel | S1_filter | logreg   |          0.517 |            1.000 |        14 |
+| oscillator_channel | S1_filter | selected |          0.483 |            1.000 |        13 |
+| oscillator_channel | S3_sizing | lgbm     |          0.333 |            0.933 |        12 |
+| oscillator_channel | S3_sizing | logreg   |          0.345 |            0.933 |        13 |
+| oscillator_channel | S3_sizing | selected |          0.340 |            0.933 |        12 |
+| oscillator_channel | S4_exit   | lgbm     |          0.248 |            0.933 |         7 |
+| oscillator_channel | S4_exit   | logreg   |          0.277 |            0.933 |         8 |
+| oscillator_channel | S4_exit   | selected |          0.281 |            0.933 |        10 |
+| other              | S1_filter | lgbm     |          0.430 |            0.933 |        13 |
+| other              | S1_filter | logreg   |          0.464 |            0.933 |        13 |
+| other              | S1_filter | selected |          0.462 |            0.933 |        12 |
+| other              | S3_sizing | lgbm     |          0.385 |            0.933 |        13 |
+| other              | S3_sizing | logreg   |          0.380 |            0.933 |        12 |
+| other              | S3_sizing | selected |          0.382 |            0.933 |        13 |
+| other              | S4_exit   | lgbm     |          0.307 |            0.933 |        10 |
+| other              | S4_exit   | logreg   |          0.267 |            0.933 |         7 |
+| other              | S4_exit   | selected |          0.306 |            0.933 |        10 |
+| context_only       | S1_filter | lgbm     |          0.403 |            0.933 |        14 |
+| context_only       | S1_filter | logreg   |          0.518 |            1.000 |        14 |
+| context_only       | S1_filter | selected |          0.484 |            0.933 |        13 |
+| context_only       | S3_sizing | lgbm     |          0.335 |            0.933 |        13 |
+| context_only       | S3_sizing | logreg   |          0.374 |            0.933 |        13 |
+| context_only       | S3_sizing | selected |          0.360 |            0.933 |        12 |
+| context_only       | S4_exit   | lgbm     |          0.211 |            0.933 |         8 |
+| context_only       | S4_exit   | logreg   |          0.259 |            0.933 |         9 |
+| context_only       | S4_exit   | selected |          0.227 |            0.933 |         9 |
+
+![Figure 7. Mean ΔSharpe (selected model) when ML sees one indicator family, all 56 indicator features, or no indicators at all. All blocks use the same lighter protocol, so compare them with each other, not with Table 5.](figures/F7_feature_ablation.png)
+
+*Figure 7. Mean ΔSharpe (selected model) when ML sees one indicator family, all 56 indicator features, or no indicators at all. All blocks use the same lighter protocol, so compare them with each other, not with Table 5.*
+
+The result is clear and not what the indicator-heavy framing of the study would suggest:
+
+- **No indicator family is necessary.** Each of the five single-family blocks retains the
+  full gain at S1: +0.48
+  (momentum), +0.46
+  (volatility), +0.47
+  (trend), +0.48
+  (oscillator/channel) and +0.46
+  (other), against +0.43 with all
+  56 indicators.
+- **No indicator at all is needed either.** With only `vol_20` and the trade-state
+  features, the gains are +0.48 (S1),
+  +0.36 (S3) and
+  +0.23 (S4), versus
+  +0.43,
+  +0.37 and
+  +0.28 with the full library. The number of
+  strategies with a significant improvement is the same
+  (13 and
+  13 of
+  15 at S1).
+
+So, in this study, the ML benefit **does not depend on the 56 technical indicators**: the
+information that matters is the volatility regime and the **state of the open trade**. The
+broader indicator set adds no detectable value beyond that. The two models differ in how
+they use the extra features: with all indicators, logistic regression is slightly worse and
+LightGBM slightly better at S1 than with the trade state alone, but the differences are
+smaller than the spread between strategies.
+
+The mechanism is not tested here. A plausible reading is that the models learn
+state-dependent trade management (cut trades that are losing relative to their volatility,
+let old winners run, avoid re-entering after a recent loss), i.e. something close to a
+learned stop-and-trail rule. That reading is consistent with the S1/S3/S4 results and
+with the finding that weak rules gain most (§8.5), but it remains a hypothesis. A
+comparison against a hand-written volatility-scaled trailing stop is the natural next
+experiment, and we did not run it. This is also why the indicator count (56) should not be
+read as the source of the improvement.
+
+
+## 9. Answer to the research question
+
+> *How much does ML improve established trend-following strategies over their original
+> rule-based implementations, and under what market, instrument, strategy, indicator, model
+> and validation conditions does the improvement remain statistically significant and
+> robust?*
+
+**How much.** It depends on the stage at which ML is applied. Out of sample over
+2006-01-02..2026-10-06, ML that **selects trades (S1)** raises the Sharpe ratio
+of the average rule by +0.47, and ML
+**position sizing (S3)** by +0.44.
+This is large relative to the baselines, whose mean Sharpe is
+0.01. ML **exits (S4)** add
++0.28 and **parameter adaptation (S5)**
++0.16. The strategy-agnostic **regime
+gate (S2)** adds nothing (-0.007). In a
+diversified composite of all 39 rules, the Sharpe ratio goes from
+0.01 to
+0.60 (S1) or
+0.57 (S3), and the maximum drawdown falls
+from -9.5% to
+-4.1%.
+
+**Statistically significant?** Yes for S1 and S3, and partly for S4:
+
+- After Benjamini–Hochberg adjustment over the 195 strategy × stage tests,
+  31 (S1) and
+  33 (S3) of 39 strategies improve
+  significantly, and 15 (S4).
+- After the stricter Holm correction the counts are
+  10, 16
+  and 1.
+- Hansen's SPA test rejects "no ML configuration beats the rule" for
+  38 of 39 strategies.
+- The probability of backtest overfitting is low (median
+  0.009).
+- A placebo that applies the same decision rules with random predictions is **negative or
+  null** (-0.02 at S1,
+  -0.56 at S3), so the gain is not an
+  artefact of merely trading less. The same pipeline run on random-walk markets shows no
+  broad improvement, which argues against gross look-ahead leakage.
+
+**Where it is robust.**
+
+- **Validation design.** A single hold-out (no retraining) and a rolling 10-year window give
+  essentially the same results as the expanding walk-forward benchmark (§8.11).
+- **Time.** S1, S3, S4 and S5 are positive in every 5-year sub-period, and largest in
+  2021–2026, when the rules themselves lost money.
+- **Backtest mechanics.** The stage ranking is unchanged by 0×/3× costs, one bar of
+  execution delay, the optimistic same-close convention, or unit instead of
+  volatility-targeted sizing.
+- **Markets.** Equity indices, ETFs, emerging-market FX, crypto and (less so) futures
+  benefit. At the *instrument* level the effect is smaller
+  (S1 +0.12 on average): the
+  portfolio gain relies on aggregating many weakly correlated markets.
+- **Strategies.** ML helps weak rules most. Fast adaptive moving averages gain
+  +0.61 from S1, whereas the
+  best slow rules (Faber, BLL: +0.12) and time-series
+  momentum (+0.18) gain much less.
+- **Models.** Extra trees and random forests are the best, gradient boosting is close, and
+  the neural network is the weakest (Table 8, Table 15). Validation-based model selection
+  recovers part of the gap to the ex-post best model but not all of it (Table 8c).
+
+**Where it is not robust, and what the evidence does not support.**
+
+- **Frequency.** On 4-hour and 1-hour crypto bars, ML sizing (S3) no longer helps and the
+  regime gate hurts. Only trade filtering (S1) and, at 1 hour, parameter adaptation (S5)
+  help, and at 1 hour mostly by avoiding trading costs on baselines that lose heavily.
+- **G10 FX** shows no ML benefit.
+- **Regime detection (S2)** does not help in any daily design.
+- **The indicators are not the source of the gain.** A model that sees no technical
+  indicator at all (only volatility and the state of the open trade) obtains the same
+  improvement as one given 56 indicators (§8.12). The finding that the benefit comes from
+  trade-state and volatility information, not from the indicator library, is the most
+  important qualification of the study's framing.
+- **Part of S1's benefit is cost avoidance** (§8.10), and the S1 gain on random-walk
+  markets rises with transaction costs.
+- **Absolute profitability remains modest.** Only
+  9 of 39 strategies' best ML
+  configuration survives deflation for the 25 configurations tried, and many ML-enhanced
+  rules are still not convincingly profitable on their own. The improvement is
+  statistically robust, and the resulting strategies are mostly not.
+- **Survivorship-biased single stocks** show the largest gains of all, which we treat as an
+  upper bound that does not generalise, and exclude from conclusions.
 
 
 ## 10. Limitations
@@ -744,6 +1162,14 @@ PLACEHOLDER
 - **Fixed hyper-parameters.** Each model family is represented by one a-priori
   configuration. Tuning them (on validation data) could change the model ranking. It
   would also enlarge the search space the multiple-testing corrections must cover.
+- **What ML is doing.** The ablation (§8.12) shows the gains do not require technical
+  indicators, but it cannot say what the models learn from trade state and volatility. We
+  did not compare against hand-written volatility-scaled trailing stops or re-entry rules.
+  Until that is done, "ML improves trend following" should be read as "a learned
+  trade-management layer improves it", not as evidence that the indicator library has
+  predictive content.
+- **Ablation scope.** The single-family and context-only blocks use a lighter protocol
+  (S1/S3/S4, two models, 3-year retraining, 15 representative strategies).
 - **Pooled models.** A model is fitted per strategy and stage across all instruments.
   Per-asset-class models are a natural extension, supported by the framework through the
   universe groups.

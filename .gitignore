@@ -22,3 +22,6 @@ data/tfml_fetch.log
 
 # exceeds GitHub 100 MB file limit
 results/tfml/registry_experiments.csv.gz
+
+# manuscript build intermediates (chrome profile, rendered md, figure 7)
+paper/manuscript/build/

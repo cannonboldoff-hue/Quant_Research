@@ -8,7 +8,7 @@ J=${1:-5}
 if [ "$("$PY" scripts/tfml_missing.py ablation_all | wc -w)" != "0" ]; then
   echo "### $(date) ablation all"; "$PY" scripts/tfml_ablation.py --block all --n-jobs "$J"
 fi
-for b in momentum volatility trend oscillator_channel other; do
+for b in context_only momentum volatility trend oscillator_channel other; do
   echo "### $(date) ablation $b"
   "$PY" scripts/tfml_ablation.py --block "$b" --n-jobs "$J" --subset
 done

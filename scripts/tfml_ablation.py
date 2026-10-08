@@ -41,6 +41,7 @@ SUBSET = ["sma_50_200", "ema_12_26", "kama_10", "hma_55_slope", "donchian_20", "
 
 BLOCKS = {
     "all": None,
+    "context_only": set(),   # no indicator features at all: only vol_20 + trade-context features
     "momentum": {"momentum"},
     "volatility": {"volatility"},
     "trend": {"trend_strength", "trend_direction"},

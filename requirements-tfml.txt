@@ -19,3 +19,7 @@ nbclient>=0.9
 ipykernel>=6.29
 pytest>=8.0
 tqdm>=4.66
+
+# manuscript build (paper/manuscript/build_manuscript.py)
+pypandoc_binary>=1.13
+python-docx>=1.1

@@ -32,8 +32,8 @@ little to improve on the rule.
 
 If any component leaked future information, ML would "improve" rules even on data with
 nothing to predict. We ran the whole benchmark pipeline unchanged on
-{{n:null_test[stage=S1_filter].n_strategies}}-strategy panels of **synthetic random-walk
-instruments** (GARCH-t returns, zero predictability, same costs).
+a panel of 60 **synthetic random-walk instruments** with
+{{n:null_test[stage=S1_filter].n_strategies}} strategies (GARCH-t returns, zero predictability, same costs).
 
 {{table:T21_null_randomwalk}}
 
@@ -95,35 +95,85 @@ and leakage that required real market structure to bite would not show up here.
 **What is robust.** In every *daily* design (benchmark, 2013 hold-out, rolling window, and
 the biased stock universe), S1 and S3 have a mean ΔSharpe of at least
 {{n:runs.robust_holdout2013.headline[stage=S3_sizing].mean_dSharpe:+.2f}}. They improve at
-least {{pct:runs.robust_holdout2013.headline[stage=S3_sizing].share_improved}} of the strategies,
+least {{n:runs.robust_holdout2013.headline[stage=S3_sizing].share_improved:.1%}} of the strategies,
 and are significant for 20 to 37 strategies after BH adjustment (Table 18). S2 never helps
 materially. S5 is small but positive.
 
 **What is not robust: frequency.** At intraday crypto frequencies the picture changes:
 
 - At 4-hour bars S3 sizing no longer helps
-  ({{n:runs.crypto_intraday_4h.headline[stage=S3_sizing].mean_dSharpe:+.2f}}). Only S1
+  ({{n:runs.crypto_intraday_4h.headline[stage=S3_sizing].mean_dSharpe:+.2f}}). S1
   survives ({{n:runs.crypto_intraday_4h.headline[stage=S1_filter].mean_dSharpe:+.2f}}, significant
-  for {{n:runs.crypto_intraday_4h.headline[stage=S1_filter].sig_pos_bh}} strategies after BH).
+  for {{n:runs.crypto_intraday_4h.headline[stage=S1_filter].sig_pos_bh}} strategies after BH). S5 is
+  positive on average ({{n:runs.crypto_intraday_4h.headline[stage=S5_params].mean_dSharpe:+.2f}}) but
+  significant for only {{n:runs.crypto_intraday_4h.headline[stage=S5_params].sig_pos_bh}}.
 - At 1-hour bars every baseline loses heavily after costs (mean Sharpe
   {{n:runs.crypto_intraday_1h.baseline.mean_sharpe:+.2f}}). S1 and S5 improve them
   ({{n:runs.crypto_intraday_1h.headline[stage=S1_filter].mean_dSharpe:+.2f}} and
   {{n:runs.crypto_intraday_1h.headline[stage=S5_params].mean_dSharpe:+.2f}}), while S2 and S3
   make them *worse*: S3 is significantly negative for
   {{n:cross_run[run=crypto_intraday_1h,stage=S3_sizing].sig_neg_bh}} strategies after BH. The S1
-  gain here is mostly avoided trading cost, and no ML variant of any baseline becomes
-  profitable.
+  gain here is mostly avoided trading cost. Almost all ML variants remain unprofitable
+  after costs (only 79 of the 1,209 stage × model × strategy configurations have a positive
+  Sharpe, against 4 of 39 baselines; best 0.84, a long-only rule with ML exits).
 
 The improvement is therefore robust across validation design, time period and (daily) asset
 class, but **not** across sampling frequency. The sizing effect in particular appears
 specific to daily bars.
 
-### 8.12 Which indicator families carry the improvement?
+### 8.12 Which indicators carry the improvement? (feature ablation)
+
+Does the ML gain come from the technical indicators? We re-ran stages S1, S3 and S4 with
+the feature set restricted to one indicator family at a time, and to **no indicator at
+all** (`context_only`). Two models (logistic regression, LightGBM) and retraining every 3
+years give a lighter protocol than the benchmark, so blocks are compared with each other
+and with the `all` reference under that same protocol, on the
+{{n:ablation_meta.n_strategies_common}} representative strategies that every block ran (all 8
+strategy families).
+
+What every block always sees: `vol_20` (needed to scale the trade-state features) and the
+**trade-state features**: current position and size, trade age, volatility-scaled open P&L,
+and the volatility-scaled result and length of the previous trade. These are causal
+functions of price and of the rule's own signals, but they are not technical indicators.
 
 {{table:T20_feature_family_ablation|feature_block,stage,model,mean_dSharpe,share_improved,sig_pos}}
 
-{{fig:F7_feature_ablation.png|Figure 7. Mean ΔSharpe (selected model) when ML sees only one indicator family. All blocks use the same lighter protocol (2 models, retraining every 3 years), so compare blocks with each other and with "all" only, not with Table 5.}}
+{{fig:F7_feature_ablation.png|Figure 7. Mean ΔSharpe (selected model) when ML sees one indicator family, all 56 indicator features, or no indicators at all. All blocks use the same lighter protocol, so compare them with each other, not with Table 5.}}
 
-`vol_20` is present in every block because it scales the trade-context features. The
-comparison with the "all features" reference shows how much of the gain is retained by each
-family alone. The text of §9 summarises this.
+The result is clear and not what the indicator-heavy framing of the study would suggest:
+
+- **No indicator family is necessary.** Each of the five single-family blocks retains the
+  full gain at S1: {{n:ablation[feature_block=momentum,stage=S1_filter,model=selected].mean_dSharpe:+.2f}}
+  (momentum), {{n:ablation[feature_block=volatility,stage=S1_filter,model=selected].mean_dSharpe:+.2f}}
+  (volatility), {{n:ablation[feature_block=trend,stage=S1_filter,model=selected].mean_dSharpe:+.2f}}
+  (trend), {{n:ablation[feature_block=oscillator_channel,stage=S1_filter,model=selected].mean_dSharpe:+.2f}}
+  (oscillator/channel) and {{n:ablation[feature_block=other,stage=S1_filter,model=selected].mean_dSharpe:+.2f}}
+  (other), against {{n:ablation[feature_block=all,stage=S1_filter,model=selected].mean_dSharpe:+.2f}} with all
+  56 indicators.
+- **No indicator at all is needed either.** With only `vol_20` and the trade-state
+  features, the gains are {{n:ablation[feature_block=context_only,stage=S1_filter,model=selected].mean_dSharpe:+.2f}} (S1),
+  {{n:ablation[feature_block=context_only,stage=S3_sizing,model=selected].mean_dSharpe:+.2f}} (S3) and
+  {{n:ablation[feature_block=context_only,stage=S4_exit,model=selected].mean_dSharpe:+.2f}} (S4), versus
+  {{n:ablation[feature_block=all,stage=S1_filter,model=selected].mean_dSharpe:+.2f}},
+  {{n:ablation[feature_block=all,stage=S3_sizing,model=selected].mean_dSharpe:+.2f}} and
+  {{n:ablation[feature_block=all,stage=S4_exit,model=selected].mean_dSharpe:+.2f}} with the full library. The number of
+  strategies with a significant improvement is the same
+  ({{n:ablation[feature_block=context_only,stage=S1_filter,model=selected].sig_pos}} and
+  {{n:ablation[feature_block=all,stage=S1_filter,model=selected].sig_pos}} of
+  {{n:ablation_meta.n_strategies_common}} at S1).
+
+So, in this study, the ML benefit **does not depend on the 56 technical indicators**: the
+information that matters is the volatility regime and the **state of the open trade**. The
+broader indicator set adds no detectable value beyond that. The two models differ in how
+they use the extra features: with all indicators, logistic regression is slightly worse and
+LightGBM slightly better at S1 than with the trade state alone, but the differences are
+smaller than the spread between strategies.
+
+The mechanism is not tested here. A plausible reading is that the models learn
+state-dependent trade management (cut trades that are losing relative to their volatility,
+let old winners run, avoid re-entering after a recent loss), i.e. something close to a
+learned stop-and-trail rule. That reading is consistent with the S1/S3/S4 results and
+with the finding that weak rules gain most (§8.5), but it remains a hypothesis. A
+comparison against a hand-written volatility-scaled trailing stop is the natural next
+experiment, and we did not run it. This is also why the indicator count (56) should not be
+read as the source of the improvement.

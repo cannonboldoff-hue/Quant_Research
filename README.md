@@ -11,7 +11,8 @@
 > ```bash
 > pip install -e . && pip install -r requirements.txt
 > python scripts/tfml_fetch_data.py          # download + clean (Yahoo, Binance, FRED)
-> bash scripts/tfml_run_all.sh 6             # all experiment runs -> results/tfml/registry.sqlite
+> bash scripts/tfml_run_all.sh 6             # benchmark + robustness runs -> results/tfml/registry.sqlite
+> bash scripts/tfml_phase2.sh 6              # null test, placebo controls, ablation (see docs/TFML_FRAMEWORK.md)
 > python scripts/tfml_report.py              # tables / figures / results_summary.json
 > python paper/build_paper.py                # paper.md + paper.html (numbers injected from results)
 > pytest -q                                  # incl. look-ahead tests for every feature & strategy

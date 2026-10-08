@@ -14,6 +14,14 @@
 - **Fixed hyper-parameters.** Each model family is represented by one a-priori
   configuration. Tuning them (on validation data) could change the model ranking. It
   would also enlarge the search space the multiple-testing corrections must cover.
+- **What ML is doing.** The ablation (§8.12) shows the gains do not require technical
+  indicators, but it cannot say what the models learn from trade state and volatility. We
+  did not compare against hand-written volatility-scaled trailing stops or re-entry rules.
+  Until that is done, "ML improves trend following" should be read as "a learned
+  trade-management layer improves it", not as evidence that the indicator library has
+  predictive content.
+- **Ablation scope.** The single-family and context-only blocks use a lighter protocol
+  (S1/S3/S4, two models, 3-year retraining, 15 representative strategies).
 - **Pooled models.** A model is fitted per strategy and stage across all instruments.
   Per-asset-class models are a natural extension, supported by the framework through the
   universe groups.
